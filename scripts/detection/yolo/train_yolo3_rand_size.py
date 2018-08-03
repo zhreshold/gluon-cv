@@ -74,13 +74,13 @@ def parse_args():
 
 def get_dataset(dataset, args):
     if dataset.lower() == 'voc':
-        train_dataset = gdata.VOCDetection(
+        train_dataset = gdata.VOCDetectionMixUp(
             splits=[(2007, 'trainval'), (2012, 'trainval')])
         val_dataset = gdata.VOCDetection(
             splits=[(2007, 'test')])
         val_metric = VOC07MApMetric(iou_thresh=0.5, class_names=val_dataset.classes)
     elif dataset.lower() == 'coco':
-        train_dataset = gdata.COCODetection(splits='instances_train2017', use_crowd=False)
+        train_dataset = gdata.COCODetectionMixUp(splits='instances_train2017', use_crowd=False)
         val_dataset = gdata.COCODetection(splits='instances_val2017', skip_empty=False)
         val_metric = COCODetectionMetric(
             val_dataset, args.save_prefix + '_eval', cleanup=True,
@@ -191,6 +191,9 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
     logger.info('Start training from [Epoch {}]'.format(args.start_epoch))
     best_map = [0]
     for epoch in range(args.start_epoch, args.epochs):
+        train_data._dataset.set_mixup(0.5)
+        if epoch >= args.epochs - 20:
+            train_data._dataset.set_mixup(-1)
         tic = time.time()
         btic = time.time()
         mx.nd.waitall()
