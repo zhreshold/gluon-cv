@@ -4,6 +4,7 @@ import copy
 import mxnet as mx
 from .. import bbox as tbbox
 from .. import image as timage
+from .. import experimental
 
 __all__ = ['load_test', 'FasterRCNNDefaultTrainTransform', 'FasterRCNNDefaultValTransform']
 
@@ -121,6 +122,9 @@ class FasterRCNNDefaultTrainTransform(object):
 
     def __call__(self, src, label):
         """Apply transform to training image/label."""
+        # random color jittering
+        src = experimental.image.random_color_distort(src)
+
         # resize shorter side but keep in max_size
         h, w, _ = src.shape
         img = timage.resize_short_within(src, self._short, self._max_size, interp=1)
