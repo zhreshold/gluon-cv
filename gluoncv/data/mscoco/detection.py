@@ -182,14 +182,14 @@ class COCODetectionMixUp(COCODetection):
         if self._mixup <= 0:
             return super(COCODetectionMixUp, self).__getitem__(idx)
         img_path = self._items[idx]
-        label = self._labels[idx]
+        label = np.array(self._labels[idx])
         img = mx.image.imread(img_path, 1)
         if self._transform is not None:
             img, label = self._transform(img, label)
         # second image
         idx2 = np.random.choice(np.delete(np.arange(len(self)), idx))
         img_path2 = self._items[idx2]
-        label2 = self._labels[idx2]
+        label2 = np.array(self._labels[idx2])
         img2 = mx.image.imread(img_path2, 1)
         if self._transform is not None:
             img2, label2 = self._transform(img2, label2)
