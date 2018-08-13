@@ -324,8 +324,11 @@ class YOLOV3(gluon.HybridBlock):
             routes.append(x)
 
         # the YOLO output layers are used in reverse order, i.e., from very deep layers to shallow
+        # TODO(zhreshold): remove hardcoded SPP dimension
+        SPP_DIMS = [13, 26, 52]
         for i, block, output in zip(range(len(routes)), self.yolo_blocks, self.yolo_outputs):
             x, tip = block(x)
+            tip = F.contrib.AdaptiveAvgPooling2D(tip, output_size=(SPP_DIMS[i], SPP_DIMS[i]))
             if autograd.is_training():
                 dets, box_centers, box_scales, objness, class_pred, anchors, offsets = output(tip)
                 all_box_centers.append(box_centers.reshape((0, -3, -1)))
