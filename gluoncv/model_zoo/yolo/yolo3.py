@@ -194,17 +194,28 @@ class SPPBlock(gluon.HybridBlock):
     """Spatial pyramid pooling block.
 
     """
-    def __init__(self, kernel_sizes, channel, num_sync_bn_devices=-1, **kwargs):
+    def __init__(self, channel=512, num_sync_bn_devices=-1, **kwargs):
         super(SPPBlock, self).__init__(**kwargs)
-        self._kernel_sizes = kernel_sizes
         with self.name_scope():
-            self.pools = [nn.MaxPool2D(k, strides=1, ceil_mode=True) for k in kernel_sizes]
+            self.pools = nn.HybridSequential()
+            # TODO(zhreshold): there's no good approach to handle the spatial shape
+            # and pooling kernel properly, so use hardcoded sizes.
+            for k in [5, 9, 13]:
+                self.pools.add(nn.MaxPool2D(k, strides=1, ceil_mode=True))
             self.conv = _conv2d(channel, 1, 0, 1, num_sync_bn_devices)
 
     def hybrid_forward(self, F, x):
         ys = [x]
-        for pool in self.pools:
-            ys.append(pool(x))
+        for i, pool in enumerate(self.pools):
+            # TODO(zhreshold): again, this is hardcoded, since input shape is flexible
+            # pad e.g. 10x10 feature map to 13x13, apply maxpooling, and slice back to 10x10
+            if i == len(self.pools) - 1:
+                x_pad = F.pad(x, mode='constant', constant_value=0,
+                              pad_width=(0, 0, 0, 0, 0, 3, 0, 3))
+                xx = F.contrib.slice_like(pool(x_pad), x * 0, axes=(2, 3))
+                ys.append(xx)
+            else:
+                ys.append(pool(x))
         y = F.concat(ys, dim=1)
         y = self.conv(y)  # reduce channel back
         return y
