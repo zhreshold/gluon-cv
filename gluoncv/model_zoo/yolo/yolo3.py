@@ -212,7 +212,7 @@ class SPPBlock(gluon.HybridBlock):
             if i == len(self.pools) - 1:
                 x_pad = F.pad(x, mode='constant', constant_value=0,
                               pad_width=(0, 0, 0, 0, 0, 3, 0, 3))
-                xx = F.contrib.slice_like(pool(x_pad), x * 0, axes=(2, 3))
+                xx = F.slice_like(pool(x_pad), x * 0, axes=(2, 3))
                 ys.append(xx)
             else:
                 ys.append(pool(x))
