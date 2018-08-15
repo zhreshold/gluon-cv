@@ -201,7 +201,7 @@ class SPPBlock(gluon.HybridBlock):
             # TODO(zhreshold): there's no good approach to handle the spatial shape
             # and pooling kernel properly, so use hardcoded sizes.
             for k in [5, 9, 13]:
-                self.pools.add(nn.MaxPool2D(k, strides=1, ceil_mode=True))
+                self.pools.add(nn.MaxPool2D(k, strides=1, padding=(k // 2), ceil_mode=True))
             self.conv = _conv2d(channel, 1, 0, 1, num_sync_bn_devices)
 
     def hybrid_forward(self, F, x):
@@ -216,7 +216,7 @@ class SPPBlock(gluon.HybridBlock):
                 ys.append(xx)
             else:
                 ys.append(pool(x))
-        y = F.concat(ys, dim=1)
+        y = F.concat(*ys, dim=1)
         y = self.conv(y)  # reduce channel back
         return y
 
