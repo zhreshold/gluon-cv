@@ -190,6 +190,25 @@ class YOLODetectionBlockV3(gluon.HybridBlock):
         tip = self.tip(route)
         return route, tip
 
+class SPPBlock(gluon.HybridBlock):
+    """Spatial pyramid pooling block.
+
+    """
+    def __init__(self, kernel_sizes, channel, num_sync_bn_devices=-1, **kwargs):
+        super(SPPBlock, self).__init__(**kwargs)
+        self._kernel_sizes = kernel_sizes
+        with self.name_scope():
+            self.pools = [nn.MaxPool2D(k, strides=1, ceil_mode=True) for k in kernel_sizes]
+            self.conv = _conv2d(channel, 1, 0, 1, num_sync_bn_devices)
+
+    def hybrid_forward(self, F, x):
+        ys = [x]
+        for pool in self.pools:
+            ys.append(pool(x))
+        y = F.concat(ys, dim=1)
+        y = self.conv(y)  # reduce channel back
+        return y
+
 
 class YOLOV3(gluon.HybridBlock):
     """YOLO V3 detection network.
@@ -248,6 +267,7 @@ class YOLOV3(gluon.HybridBlock):
                 "pos_iou_thresh({}) < 1.0 is not implemented!".format(pos_iou_thresh))
         self._loss = YOLOV3Loss()
         with self.name_scope():
+            self.spp = SPPBlock([5, 9, 13], 512, num_sync_bn_devices)
             self.stages = nn.HybridSequential()
             self.transitions = nn.HybridSequential()
             self.yolo_blocks = nn.HybridSequential()
@@ -323,12 +343,11 @@ class YOLOV3(gluon.HybridBlock):
             x = stage(x)
             routes.append(x)
 
+        x = self.spp(x)
+
         # the YOLO output layers are used in reverse order, i.e., from very deep layers to shallow
-        # TODO(zhreshold): remove hardcoded SPP dimension
-        SPP_DIMS = [13, 26, 52]
         for i, block, output in zip(range(len(routes)), self.yolo_blocks, self.yolo_outputs):
             x, tip = block(x)
-            tip = F.contrib.AdaptiveAvgPooling2D(tip, output_size=(SPP_DIMS[i], SPP_DIMS[i]))
             if autograd.is_training():
                 dets, box_centers, box_scales, objness, class_pred, anchors, offsets = output(tip)
                 all_box_centers.append(box_centers.reshape((0, -3, -1)))
