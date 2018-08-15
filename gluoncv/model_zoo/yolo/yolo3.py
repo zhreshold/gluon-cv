@@ -278,7 +278,7 @@ class YOLOV3(gluon.HybridBlock):
                 "pos_iou_thresh({}) < 1.0 is not implemented!".format(pos_iou_thresh))
         self._loss = YOLOV3Loss()
         with self.name_scope():
-            self.spp = SPPBlock(512, num_sync_bn_devices)
+            self.spp = SPPBlock(channels[0], num_sync_bn_devices)
             self.stages = nn.HybridSequential()
             self.transitions = nn.HybridSequential()
             self.yolo_blocks = nn.HybridSequential()
