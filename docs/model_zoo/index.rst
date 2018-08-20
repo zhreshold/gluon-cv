@@ -94,6 +94,16 @@ Besides the listed, we provide more models trained on ImageNet in the upstream
 +-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
 | ResNet152_v2 [2]_     | 79.21  | 94.31  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/resnet152_v2.sh>`_      | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/resnet152_v2.log>`_         |
 +-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| darknet53 [11]_       | 77.82  | 93.72  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/darknet53.sh>`_         | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/darknet53.log>`_            |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| MobileNet1.0 [14]_    | 71.05  | 90.06  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| MobileNet0.75 [14]_   | 67.38  | 87.82  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| MobileNet0.5 [14]_    | 63.07  | 84.75  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| MobileNet0.25 [14]_   | 51.85  | 76.08  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
 | MobileNetV2_1.0 [7]_  | 71.92  | 90.56  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/mobilenetv2_1.0.sh>`_   | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/mobilenetv2_1.0.log>`_      |
 +-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
 | MobileNetV2_0.75 [7]_ | 69.61  | 88.95  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/mobilenetv2_0.75.sh>`_  | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/mobilenetv2_0.75.log>`_     |
@@ -102,15 +112,37 @@ Besides the listed, we provide more models trained on ImageNet in the upstream
 +-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
 | MobileNetV2_0.25 [7]_ | 50.74  | 74.56  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/mobilenetv2_0.25.sh>`_  | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/mobilenetv2_0.25.log>`_     |
 +-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| AlexNet [15]_         | 54.92  | 78.03  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| DenseNet121 [16]_     | 74.97  | 92.25  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| DenseNet161 [16]_     | 77.70  | 93.80  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| DenseNet169 [16]_     | 76.17  | 93.17  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| DenseNet201 [16]_     | 77.32  | 93.62  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| InceptionV3 [17]_     | 77.55  | 93.64  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| SqueezeNet1.0 [18]_   | 56.11  | 79.09  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| SqueezeNet1.1 [18]_   | 54.96  | 78.17  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| VGG11 [9]_            | 66.62  | 87.34  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| VGG13 [9]_            | 67.74  | 88.11  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
 | VGG16 [9]_            | 73.23  | 91.31  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/vgg16.sh>`_             | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/vgg16.log>`_                |
 +-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
 | VGG19 [9]_            | 74.11  | 91.35  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/vgg19.sh>`_             | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/vgg19.log>`_                |
 +-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| VGG11_bn [9]_         | 68.59  | 88.72  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
+| VGG13_bn [9]_         | 68.84  | 88.82  |                                                                                                                                    |                                                                                                                               |
++-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
 | VGG16_bn [9]_         | 73.10  | 91.76  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/vgg16_bn.sh>`_          | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/vgg16_bn.log>`_             |
 +-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
 | VGG19_bn [9]_         | 74.33  | 91.85  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/vgg19_bn.sh>`_          | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/vgg19_bn.log>`_             |
-+-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
-| darknet53 [11]_       | 77.82  | 93.72  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/darknet53.sh>`_         | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/classification/imagenet/darknet53.log>`_            |
 +-----------------------+--------+--------+------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------+
 
 **CIFAR10**
@@ -170,7 +202,7 @@ and their performances.
 
   - ``voc`` is the training dataset. You can choose ``voc`` or ``coco``, etc.
 
-  - ``@ 320x320`` indicate that the model was evaluated with resolution 320x320. If not otherwise clarified, all detection models in GluonCV can take various input shapes for prediction.
+  - ``@ 320x320`` indicate that the model was evaluated with resolution 320x320. If not otherwise specified, all detection models in GluonCV can take various input shapes for prediction. Some models are trained with various input data shapes, e.g., Faster-RCNN and YOLO models.
 
 .. hint::
 
@@ -181,6 +213,12 @@ and their performances.
   - For YOLO v3 [11]_ networks: :download:`Download train_yolo3_rand_size.py<../../scripts/detection/yolo/train_yolo3_rand_size.py>` or :download:`Download train_yolo3.py<../../scripts/detection/yolo/train_yolo3.py>` with fixed size training, which is faster than random size training pipeline.
 
 .. https://bit.ly/2JLnI2R
+
+.. hint::
+
+  For Pascal VOC dataset, training image set is the union of 2007trainval and 2012trainval and validation image set is 2007test.
+
+  The VOC metric, mean Average Precision (mAP) across all classes with IoU threshold 0.5 is reported.
 
 +----------------------------------+-------+--------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------+
 | Model                            | mAP   | Training Command                                                                                                                     | Training log                                                                                                                        |
@@ -195,24 +233,73 @@ and their performances.
 +----------------------------------+-------+--------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------+
 | faster_rcnn_resnet50_v1b_voc     | 78.3  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/faster_rcnn_resnet50_v1b_voc.sh>`_      | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/faster_rcnn_resnet50_v1b_voc_train.log>`_       |
 +----------------------------------+-------+--------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------+
-| yolo3_darknet53_voc @ 320x320    | 79.3  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/yolo3_darknet53_voc.sh>`_               | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/yolo3_darknet53_voc.log>`_             |
+| yolo3_darknet53_voc @ 320x320    | 79.3  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/yolo3_darknet53_voc.sh>`_               | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/yolo3_darknet53_voc.log>`_                      |
 +----------------------------------+-------+--------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------+
-| yolo3_darknet53_voc @ 416x416    | 81.5  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/yolo3_darknet53_voc.sh>`_               | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/yolo3_darknet53_voc.log>`_             |
+| yolo3_darknet53_voc @ 416x416    | 81.5  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/yolo3_darknet53_voc.sh>`_               | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/yolo3_darknet53_voc.log>`_                      |
 +----------------------------------+-------+--------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------+
 
 .. https://bit.ly/2JM82we
 
-+-----------------------------------+----------+------+------+-----------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
-| Model                             | 0.5:0.95 | 0.5  | 0.75 | Training Command                                                                                                                  | Training Log                                                                                                                     |
-+===================================+==========+======+======+===================================================================================================================================+==================================================================================================================================+
-| ssd_300_vgg16_atrous_coco         | 25.1     | 42.9 | 25.8 | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/ssd_300_vgg16_atrous_coco.sh>`_      | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/ssd_300_vgg16_atrous_coco_train.log>`_       |
-+-----------------------------------+----------+------+------+-----------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
-| ssd_512_vgg16_atrous_coco         | 28.9     | 47.9 | 30.6 | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/ssd_512_vgg16_atrous_coco.sh>`_      | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/ssd_512_vgg16_atrous_coco_train.log>`_       |
-+-----------------------------------+----------+------+------+-----------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
-| ssd_512_resnet50_v1_coco          | 30.6     | 50.0 | 32.2 | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/ssd_512_resnet50_v1_coco.sh>`_       | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/ssd_512_resnet50_v1_coco_train.log>`_        |
-+-----------------------------------+----------+------+------+-----------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
-| faster_rcnn_resnet50_v1b_coco     | 36.8     | 57.3 | 39.6 | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/faster_rcnn_resnet50_v1b_coco.sh>`_  | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/faster_rcnn_resnet50_v1b_coco_train.log>`_   |
-+-----------------------------------+----------+------+------+-----------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
+.. hint::
+
+  For COCO dataset, training imageset is train2017 and validation imageset is val2017.
+
+  The COCO metric, Average Precision (AP) with IoU threshold 0.5:0.95 (averaged 10 values, AP 0.5:0.95), 0.5 (AP 0.5) and 0.75 (AP 0.75) are reported together in the format (AP 0.5:0.95)/(AP 0.5)/(AP 0.75).
+
+  For object detection task, only box overlap based AP is evaluated and reported.
+
++-----------------------------------+-----------------+-----------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
+| Model                             | Box AP          | Training Command                                                                                                                  | Training Log                                                                                                                     |
++===================================+=================+===================================================================================================================================+==================================================================================================================================+
+| ssd_300_vgg16_atrous_coco         | 25.1/42.9/25.8  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/ssd_300_vgg16_atrous_coco.sh>`_      | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/ssd_300_vgg16_atrous_coco_train.log>`_       |
++-----------------------------------+-----------------+-----------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
+| ssd_512_vgg16_atrous_coco         | 28.9/47.9/30.6  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/ssd_512_vgg16_atrous_coco.sh>`_      | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/ssd_512_vgg16_atrous_coco_train.log>`_       |
++-----------------------------------+-----------------+-----------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
+| ssd_512_resnet50_v1_coco          | 30.6/50.0/32.2  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/ssd_512_resnet50_v1_coco.sh>`_       | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/ssd_512_resnet50_v1_coco_train.log>`_        |
++-----------------------------------+-----------------+-----------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
+| faster_rcnn_resnet50_v1b_coco     | 36.8/57.3/39.6  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/faster_rcnn_resnet50_v1b_coco.sh>`_  | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/faster_rcnn_resnet50_v1b_coco_train.log>`_   |
++-----------------------------------+-----------------+-----------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
+| yolo3_darknet53_coco @ 320x320    | 31.9/52.7/33.3  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/yolo3_darknet53_coco.sh>`_           | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/yolo3_darknet53_coco_train.log>`_            |
++-----------------------------------+-----------------+-----------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
+| yolo3_darknet53_coco @ 416x416    | 34.3/55.1/36.7  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/yolo3_darknet53_coco.sh>`_           | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/yolo3_darknet53_coco_train.log>`_            |
++-----------------------------------+-----------------+-----------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
+| yolo3_darknet53_coco @ 608x608    | 35.6/57.1/38.2  | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/yolo3_darknet53_coco.sh>`_           | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/detection/yolo3_darknet53_coco_train.log>`_            |
++-----------------------------------+-----------------+-----------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------+
+
+Instance Segmentation
+~~~~~~~~~~~~~~~~~~~~~
+
+Table of pre-trained models for instance segmentation and their performance.
+
+.. hint::
+
+  The model names contain the training information. For instance, ``mask_rcnn_resnet50_v1b_coco``:
+
+  - ``mask_rcnn`` indicates the algorithm is "Mask R-CNN" [13]_.
+
+  - ``resnet50_v1b`` is the type of feature extractor network.
+
+  - ``coco`` is the training dataset.
+
+.. hint::
+
+  The training commands work with the following scripts:
+
+  - For Mask R-CNN networks: :download:`Download train_mask_rcnn.py<../../scripts/instance/mask_rcnn/train_mask_rcnn.py>`
+
+.. hint::
+
+  For COCO dataset, training imageset is train2017 and validation imageset is val2017.
+
+  Average precision with IoU threshold 0.5:0.95 (averaged 10 values), 0.5 and 0.75 are reported together in the format (AP 0.5:0.95)/(AP 0.5)/(AP 0.75).
+
+  For instance segmentation task, both box overlap and segmentation overlap based AP are evaluated and reported.
+
++------------------------------+---------------------------+--------------------------+------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------+
+| Model                        | Box AP                    | Segm AP                  | Command                                                                                                                            | Training Log                                                                                                                         |
++==============================+===========================+==========================+====================================================================================================================================+======================================================================================================================================+
+| mask_rcnn_resnet50_v1b_coco  | 38.3/58.7/41.4            | 33.1/54.8/35.0           | `shell script <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/instance/mask_rcnn_resnet50_v1b_coco.sh>`_      | `log <https://raw.githubusercontent.com/dmlc/web-data/master/gluoncv/logs/instance/mask_rcnn_resnet50_v1b_coco_train.log>`_          |
++------------------------------+---------------------------+--------------------------+------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------+
 
 Semantic Segmentation
 ~~~~~~~~~~~~~~~~~~~~~
@@ -291,3 +378,21 @@ Table of pre-trained models for semantic segmentation and their performance.
         arXiv preprint arXiv:1804.02767 (2018).
 .. [12] Zhao, Hengshuang, Jianping Shi, Xiaojuan Qi, Xiaogang Wang, and Jiaya Jia. \
        "Pyramid scene parsing network." *CVPR*, 2017
+.. [13] He, Kaming, Georgia Gkioxari, Piotr Dollár and Ross Girshick. \
+        "Mask R-CNN." \
+        In IEEE International Conference on Computer Vision (ICCV), 2017.
+.. [14] Howard, Andrew G., Menglong Zhu, Bo Chen, Dmitry Kalenichenko, Weijun Wang, \
+        Tobias Weyand, Marco Andreetto, and Hartwig Adam. \
+        "Mobilenets: Efficient convolutional neural networks for mobile vision applications." \
+        arXiv preprint arXiv:1704.04861 (2017).
+.. [15] Krizhevsky, Alex, Ilya Sutskever, and Geoffrey E. Hinton. \
+        "Imagenet classification with deep convolutional neural networks." \
+        In Advances in neural information processing systems, pp. 1097-1105. 2012.
+.. [16] Huang, Gao, Zhuang Liu, Laurens Van Der Maaten, and Kilian Q. Weinberger. \
+        "Densely Connected Convolutional Networks." In CVPR, vol. 1, no. 2, p. 3. 2017.
+.. [17] Szegedy, Christian, Vincent Vanhoucke, Sergey Ioffe, Jon Shlens, and Zbigniew Wojna. \
+        "Rethinking the inception architecture for computer vision." \
+        In Proceedings of the IEEE conference on computer vision and pattern recognition, pp. 2818-2826. 2016.
+.. [18] Iandola, Forrest N., Song Han, Matthew W. Moskewicz, Khalid Ashraf, William J. Dally, and Kurt Keutzer. \
+        "Squeezenet: Alexnet-level accuracy with 50x fewer parameters and< 0.5 mb model size." \
+        arXiv preprint arXiv:1602.07360 (2016).

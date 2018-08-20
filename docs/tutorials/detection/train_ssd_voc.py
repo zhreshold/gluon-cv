@@ -1,4 +1,4 @@
-"""3. Train SSD on Pascal VOC dataset
+"""4. Train SSD on Pascal VOC dataset
 ======================================
 
 This tutorial goes through the basic building blocks of object detection
@@ -178,6 +178,12 @@ for ib, batch in enumerate(train_loader):
 #
 # `Gluon Model Zoo <../../model_zoo/index.html>`__ has a lot of built-in SSD networks.
 # You can load your favorate one with one simple line of code:
+#
+# .. hint::
+#
+#    To avoid downloading mdoel in this tutorial, we set `pretrained_base=False`,
+#    in practice we usually want to load pre-trained imagenet models by setting
+#    `pretrained_base=True`.
 from gluoncv import model_zoo
 net = model_zoo.get_model('ssd_300_vgg16_atrous_voc', pretrained_base=False)
 print(net)
