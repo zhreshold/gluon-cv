@@ -5,8 +5,8 @@ from . import transforms
 from . import batchify
 from .imagenet.classification import ImageNet
 from .dataloader import DetectionDataLoader, RandomTransformDataLoader
-from .pascal_voc.detection import VOCDetection
-from .mscoco.detection import COCODetection
+from .pascal_voc.detection import VOCDetection, VOCDetectionMixUp
+from .mscoco.detection import COCODetection, COCODetectionMixUp
 from .mscoco.instance import COCOInstance
 from .pascal_voc.segmentation import VOCSegmentation
 from .pascal_aug.segmentation import VOCAugSegmentation

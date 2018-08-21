@@ -191,7 +191,7 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
     logger.info('Start training from [Epoch {}]'.format(args.start_epoch))
     best_map = [0]
     for epoch in range(args.start_epoch, args.epochs):
-        train_data._dataset.set_mixup(0.5)
+        train_data._dataset.set_mixup(0.2)
         if epoch >= args.epochs - 20:
             train_data._dataset.set_mixup(-1)
         tic = time.time()

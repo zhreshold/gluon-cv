@@ -147,8 +147,9 @@ class YOLO3DefaultTrainTransform(object):
         # generate training target so cpu workers can help reduce the workload on gpu
         gt_bboxes = mx.nd.array(bbox[np.newaxis, :, :4])
         gt_ids = mx.nd.array(bbox[np.newaxis, :, 4:5])
+        gt_mixratio = mx.nd.array(bbox[np.newaxis, :, -1:])
         center_targets, scale_targets, weights, objectness, class_targets = self._target_generator(
-            self._fake_x, self._feat_maps, self._anchors, self._offsets, gt_bboxes, gt_ids)
+            self._fake_x, self._feat_maps, self._anchors, self._offsets, gt_bboxes, gt_ids, gt_mixratio)
         return (img, center_targets[0], scale_targets[0], weights[0],
                 objectness[0], class_targets[0], gt_bboxes[0])
 

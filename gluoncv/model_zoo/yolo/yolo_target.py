@@ -28,7 +28,7 @@ class YOLOV3PrefetchTargetGenerator(gluon.Block):
         self.bbox2corner = BBoxCenterToCorner(axis=-1, split=False)
 
 
-    def forward(self, img, xs, anchors, offsets, gt_boxes, gt_ids):
+    def forward(self, img, xs, anchors, offsets, gt_boxes, gt_ids, gt_mixratio=None):
         """Generating training targets that do not require network predictions.
 
         Parameters
@@ -94,6 +94,7 @@ class YOLOV3PrefetchTargetGenerator(gluon.Block):
             np_gtx, np_gty, np_gtw, np_gth = [x.asnumpy() for x in [gtx, gty, gtw, gth]]
             np_anchors = all_anchors.asnumpy()
             np_gt_ids = gt_ids.asnumpy()
+            np_gt_mixratios = gt_mixratio.asnumpy() if gt_mixratio is not None else None
             # TODO(zhreshold): the number of valid gt is not a big number, therefore for loop
             # should not be a problem right now. Switch to better solution is needed.
             for b in range(matches.shape[0]):
@@ -116,7 +117,7 @@ class YOLOV3PrefetchTargetGenerator(gluon.Block):
                     scale_targets[b, index, match, 0] = np.log(gtw / np_anchors[match, 0])
                     scale_targets[b, index, match, 1] = np.log(gth / np_anchors[match, 1])
                     weights[b, index, match, :] = 2.0 - gtw * gth / orig_width / orig_height
-                    objectness[b, index, match, 0] = 1
+                    objectness[b, index, match, 0] = np_gt_mixratios[b, m, 0] if np_gt_mixratios is not None else 1
                     class_targets[b, index, match, :] = 0
                     class_targets[b, index, match, int(np_gt_ids[b, m, 0])] = 1
             # since some stages won't see partial anchors, so we have to slice the correct targets
