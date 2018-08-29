@@ -180,7 +180,9 @@ class COCODetectionMixUp(COCODetection):
 
     def __getitem__(self, idx):
         if self._mixup <= 0:
-            return super(COCODetectionMixUp, self).__getitem__(idx)
+            img, label = super(COCODetectionMixUp, self).__getitem__(idx)
+            label = np.hstack((label, np.ones((label.shape[0], 1))))
+            return img, label
         img_path = self._items[idx]
         label = np.array(self._labels[idx])
         img = mx.image.imread(img_path, 1)

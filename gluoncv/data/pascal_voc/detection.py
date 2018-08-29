@@ -146,7 +146,9 @@ class VOCDetectionMixUp(VOCDetection):
 
     def __getitem__(self, idx):
         if self._mixup <= 0:
-            return super(VOCDetectionMixUp, self).__getitem__(idx)
+            img, label = super(VOCDetectionMixUp, self).__getitem__(idx)
+            label = np.hstack((label, np.ones((label.shape[0], 1))))
+            return img, label
         img_id = self._items[idx]
         img_path = self._image_path.format(*img_id)
         label = self._label_cache[idx] if self._label_cache else self._load_label(idx)
