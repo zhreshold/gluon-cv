@@ -79,6 +79,8 @@ def parse_args():
     parser.add_argument('--syncbn', action='store_true', help='Use synchronize BN across devices.')
     parser.add_argument('--no-wd', action='store_true',
                         help='whether to remove weight decay on bias, and beta/gamma for batchnorm layers.')
+    parser.add_argument('--no-mixup', action='store_true',
+                        help='whether to disable mixup.')
     args = parser.parse_args()
     return args
 
@@ -215,9 +217,12 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
     logger.info('Start training from [Epoch {}]'.format(args.start_epoch))
     best_map = [0]
     for epoch in range(args.start_epoch, args.epochs):
-        train_data._dataset.set_mixup(0.2)
-        if epoch >= args.epochs - 20:
+        if args.no_mixup:
             train_data._dataset.set_mixup(-1)
+        else:
+            train_data._dataset.set_mixup(0.2)
+            if epoch >= args.epochs - 20:
+                train_data._dataset.set_mixup(-1)
         tic = time.time()
         btic = time.time()
         mx.nd.waitall()
