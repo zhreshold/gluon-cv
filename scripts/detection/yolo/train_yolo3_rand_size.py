@@ -47,10 +47,18 @@ def parse_args():
                         'You can specify it to 100 for example to start from 100 epoch.')
     parser.add_argument('--lr', type=float, default=0.001,
                         help='Learning rate, default is 0.001')
+    parser.add_argument('--lr-mode', type=str, default='step',
+                        help='learning rate scheduler mode. options are step, poly and cosine.')
     parser.add_argument('--lr-decay', type=float, default=0.1,
                         help='decay rate of learning rate. default is 0.1.')
+    parser.add_argument('--lr-decay-period', type=int, default=0,
+                        help='interval for periodic learning rate decays. default is 0 to disable.')
     parser.add_argument('--lr-decay-epoch', type=str, default='160,180',
                         help='epoches at which learning rate decays. default is 160,180.')
+    parser.add_argument('--warmup-lr', type=float, default=0.0,
+                        help='starting warmup learning rate. default is 0.0.')
+    parser.add_argument('--warmup-epochs', type=int, default=0,
+                        help='number of warmup epochs.')
     parser.add_argument('--momentum', type=float, default=0.9,
                         help='SGD momentum, default is 0.9')
     parser.add_argument('--wd', type=float, default=0.0005,
@@ -69,6 +77,8 @@ def parse_args():
     parser.add_argument('--num-samples', type=int, default=-1,
                         help='Training images. Use -1 to automatically get the number.')
     parser.add_argument('--syncbn', action='store_true', help='Use synchronize BN across devices.')
+    parser.add_argument('--no-wd', action='store_true',
+                        help='whether to remove weight decay on bias, and beta/gamma for batchnorm layers.')
     args = parser.parse_args()
     return args
 
@@ -153,14 +163,28 @@ def validate(net, val_data, ctx, eval_metric):
 def train(net, train_data, val_data, eval_metric, ctx, args):
     """Training pipeline"""
     net.collect_params().reset_ctx(ctx)
-    lr_scheduler = LRScheduler(mode='step',
+    if args.no_wd:
+        for k, v in net.collect_params('.*beta|.*gamma|.*bias').items():
+            v.wd_mult = 0.0
+    # lr_scheduler = LRScheduler(mode='step',
+    #                            baselr=args.lr,
+    #                            niters=args.num_samples // args.batch_size,
+    #                            nepochs=args.epochs,
+    #                            step=[int(i) for i in args.lr_decay_epoch.split(',')],
+    #                            step_factor=float(args.lr_decay),
+    #                            warmup_epochs=max(2, 1000 // (args.num_samples // args.batch_size)),
+    #                            warmup_mode='linear')
+    if args.lr_decay_period > 0:
+        lr_decay_epoch = list(range(lr_decay_period, args.epochs, lr_decay_period))
+    else:
+        lr_decay_epoch = [int(i) for i in args.lr_decay_epoch.split(',')]
+    lr_scheduler = LRScheduler(mode=args.lr_mode,
                                baselr=args.lr,
                                niters=args.num_samples // args.batch_size,
                                nepochs=args.epochs,
-                               step=[int(i) for i in args.lr_decay_epoch.split(',')],
-                               step_factor=float(args.lr_decay),
-                               warmup_epochs=max(2, 1000 // (args.num_samples // args.batch_size)),
-                               warmup_mode='linear')
+                               step=lr_decay_epoch,
+                               step_factor=args.lr_decay, power=2,
+                               warmup_epochs=args.warmup_epochs)
 
     trainer = gluon.Trainer(
         net.collect_params(), 'sgd',
