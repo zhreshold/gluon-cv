@@ -130,3 +130,50 @@ class VOCDetection(VisionDataset):
         """Preload all labels into memory."""
         logging.debug("Preloading %s labels into memory...", str(self))
         return [self._load_label(idx) for idx in range(len(self))]
+
+
+class VOCDetectionMixUp(VOCDetection):
+    def __init__(self, mixup=0.5, root=os.path.join('~', '.mxnet', 'datasets', 'voc'),
+                 splits=((2007, 'trainval'), (2012, 'trainval')),
+                 transform=None, index_map=None, preload_label=True):
+        super(VOCDetectionMixUp, self).__init__(
+            root=root, splits=splits, transform=transform, index_map=index_map,
+            preload_label=preload_label)
+        self._mixup = float(mixup)
+
+    def set_mixup(self, mixup):
+        self._mixup = float(mixup)
+
+    def __getitem__(self, idx):
+        if self._mixup <= 0:
+            img, label = super(VOCDetectionMixUp, self).__getitem__(idx)
+            label = np.hstack((label, np.ones((label.shape[0], 1))))
+            return img, label
+        img_id = self._items[idx]
+        img_path = self._image_path.format(*img_id)
+        label = self._label_cache[idx] if self._label_cache else self._load_label(idx)
+        img = mx.image.imread(img_path, 1)
+        if self._transform is not None:
+            img, label = self._transform(img, label)
+        # second image
+        choices = np.delete(np.arange(len(self)), idx)
+        idx2 = np.random.choice(choices)
+        img_id2 = self._items[idx2]
+        img_path2 = self._image_path.format(*img_id2)
+        label2 = self._label_cache[idx2] if self._label_cache else self._load_label(idx2)
+        img2 = mx.image.imread(img_path2, 1)
+        if self._transform is not None:
+            img2, label2 = self._transform(img2, label2)
+
+        # mix two images
+        lam = np.random.uniform(self._mixup, 1 - self._mixup)
+        height = max(img.shape[0], img2.shape[0])
+        width = max(img.shape[1], img2.shape[1])
+        mix_img = mx.nd.zeros(shape=(height, width, 3), dtype='float32')
+        mix_img[:img.shape[0], :img.shape[1], :] = img.astype('float32') * lam
+        mix_img[:img2.shape[0], :img2.shape[1], :] += img2.astype('float32') * (1 - lam)
+        imx_img = mix_img.astype('uint8')
+        y1 = np.hstack((label, np.full((label.shape[0], 1), lam)))
+        y2 = np.hstack((label2, np.full((label2.shape[0], 1), 1 - lam)))
+        mix_label = np.vstack((y1, y2))
+        return mix_img, mix_label

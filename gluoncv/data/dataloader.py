@@ -40,6 +40,31 @@ def default_mp_pad_batchify_fn(data):
             buf[i][:l.shape[0], :] = l
         return nd.array(buf, dtype=data[0].dtype, ctx=context.Context('cpu_shared', 0))
 
+# def mixup_mp_pad_batchify_fn(data, blend=None, alpha=0.2):
+#     if isinstance(data[0], nd.NDArray):
+#         assert blend is not None
+#         out = nd.empty((len(data),) + data[0].shape, dtype=data[0].dtype,
+#                        ctx=context.Context('cpu_shared', 0))
+#         X = nd.stack(*data, out=out)
+#         X = blend * X + (1 - blend) * X[::-1]
+#         return X
+#     elif isinstance(data[0], tuple):
+#         data = zip(*data)
+#         blend = np.random.beta(alpha, alpha)
+#         return [mixup_mp_pad_batchify_fn(i, blend) for i in data]
+#     else:
+#         assert blend is not None
+#         data = np.asarray(data)
+#         batch_size = len(data)
+#         pad = max([l.shape[0] + l2.shape[0] for l, l2 in zip(data, data[::-1])] + [1,])
+#         buf = np.full((batch_size, pad, data[0].shape[-1] + 1), -1, dtype=data[0].dtype)
+#         for i, l, l2 in enumerate(zip(data, data[::-1])):
+#             buf[i][:l.shape[0], :] = l
+#             buf[i][:l.shape[0], -1] = blend
+#             buf[i][l.shape[0]:l.shape[0] + l2.shape[0], :]
+#             buf[i][l.shape[0]:l.shape[0] + l2.shape[0], -1] = 1 - blend
+#         return nd.array(buf, dtype=data[0].dtype, ctx=context.Context('cpu_shared', 0))
+
 
 class DetectionDataLoader(DataLoader):
     """Data loader for detection dataset.
