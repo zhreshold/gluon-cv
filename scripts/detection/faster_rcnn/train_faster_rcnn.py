@@ -304,12 +304,8 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
     if args.label_smoothing:
         rcnn_cls_loss = mx.gluon.loss.SoftmaxCrossEntropyLoss(sparse_label=False)
         def smooth(label, classes, eta=0.1):
-            if isinstance(label, nd.NDArray):
-                label = [label]
-            smoothed = []
-            for l in label:
-                res = l.one_hot(classes, on_value = 1 - eta + eta/classes, off_value = eta/classes)
-                smoothed.append(res)
+            res = label.one_hot(classes, on_value = 1 - eta + eta/classes, off_value = eta/classes)
+            return res
     else:
         rcnn_cls_loss = mx.gluon.loss.SoftmaxCrossEntropyLoss()
     rcnn_box_loss = mx.gluon.loss.HuberLoss()  # == smoothl1
@@ -397,9 +393,9 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
                     num_rcnn_pos = (cls_targets >= 0).sum()
                     if args.label_smoothing:
                         try:
-                            cls_targets1 = smooth(cls_targets, train_data._dataset.num_class))
+                            cls_targets1 = smooth(cls_targets, train_data._dataset.num_class + 1)
                         except AttributeError:
-                            cls_targets1 = smooth(cls_targets, train_data._dataset._data.num_class))
+                            cls_targets1 = smooth(cls_targets, train_data._dataset._data.num_class + 1)
                     else:
                         cls_targets1 = cls_targets
                     rcnn_loss1 = rcnn_cls_loss(cls_pred, cls_targets1, cls_targets >= 0) * cls_targets.size / cls_targets.shape[0] / num_rcnn_pos
