@@ -9,7 +9,7 @@ from mxnet.gluon.data.vision import transforms
 
 from gluoncv.data import imagenet
 from gluoncv.model_zoo import get_model
-from gluoncv.utils import makedirs, LRScheduler
+from gluoncv.utils import makedirs, LRCompose, LRScheduler
 
 # CLI
 parser = argparse.ArgumentParser(description='Train a model for image classification.')
@@ -122,10 +122,14 @@ if opt.lr_decay_period > 0:
 else:
     lr_decay_epoch = [int(i) for i in opt.lr_decay_epoch.split(',')]
 num_batches = num_training_samples // batch_size
-lr_scheduler = LRScheduler(mode=opt.lr_mode, baselr=opt.lr,
-                           niters=num_batches, nepochs=opt.num_epochs,
-                           step=lr_decay_epoch, step_factor=opt.lr_decay, power=2,
-                           warmup_epochs=opt.warmup_epochs)
+
+lr_scheduler = LRCompose([
+    LRScheduler('linear', base_lr=0, target_lr=opt.lr, niters=num_batches*opt.warmup_epochs),
+    LRScheduler(opt.lr_mode, base_lr=opt.lr, target_lr=0,
+                niters=num_batches*(opt.num_epochs - opt.warmup_epochs),
+                step=[num_batches*(e - opt.warmup_epochs) for e in lr_decay_epoch],
+                step_factor=lr_decay, power=2)
+])
 
 model_name = opt.model
 
@@ -356,7 +360,6 @@ def train(ctx):
                 loss = [L(yhat, y.astype(opt.dtype, copy=False)) for yhat, y in zip(outputs, label)]
             for l in loss:
                 l.backward()
-            lr_scheduler.update(i, epoch)
             trainer.step(batch_size)
 
             if opt.mixup:
