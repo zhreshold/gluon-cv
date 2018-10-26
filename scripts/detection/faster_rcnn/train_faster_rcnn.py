@@ -97,8 +97,6 @@ def parse_args():
         else:
             args.lr *=  num_gpus
             args.lr_warmup /= num_gpus
-    if args.num_samples < 0:
-        args.num_samples = len(train_dataset)
     return args
 
 
@@ -196,8 +194,10 @@ def get_dataset(dataset, args):
     else:
         raise NotImplementedError('Dataset: {} not implemented.'.format(dataset))
     if args.mixup:
-        from gluoncv.data.mixup import MixupDetection
+        from gluoncv.data import MixupDetection
         train_dataset = MixupDetection(train_dataset)
+    if args.num_samples < 0:
+        args.num_samples = len(train_dataset)
     return train_dataset, val_dataset, val_metric
 
 def get_dataloader(net, train_dataset, val_dataset, batch_size, num_workers):
@@ -344,10 +344,16 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
         mix_ratio = 1.0
         if args.mixup:
             # TODO(zhreshold) only support evenly mixup now, target generator needs to be modified otherwise
-            train_data._dataset.set_mixup(np.random.uniform, 0.5, 0.5)
+            try:
+                train_data._dataset.set_mixup(np.random.uniform, 0.5, 0.5)
+            except AttributeError:
+                train_data._dataset._data.set_mixup(np.random.uniform, 0.5, 0.5)
             mix_ratio = 0.5
             if epoch >= args.epochs - args.no_mixup_epochs:
-                train_data._dataset.set_mixup(None)
+                try:
+                    train_data._dataset.set_mixup(None)
+                except AttributeError:
+                    train_data._dataset._data.set_mixup(None)
                 mix_ratio = 1.0
         # while lr_steps and epoch >= lr_steps[0]:
         #     new_lr = trainer.learning_rate * lr_decay
@@ -360,7 +366,7 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
         btic = time.time()
         net.hybridize(static_alloc=True)
         # base_lr = trainer.learning_rate
-        # for i, batch in enumerate(train_data):
+        for i, batch in enumerate(train_data):
         #     if epoch == 0 and i <= lr_warmup:
         #         # adjust based on real percentage
         #         new_lr = base_lr * get_lr_at_iter(i / lr_warmup)
@@ -390,7 +396,10 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
                     # losses of rcnn
                     num_rcnn_pos = (cls_targets >= 0).sum()
                     if args.label_smoothing:
-                        cls_targets1 = smooth(cls_targets, len(train_data._dataset.CLASSES))
+                        try:
+                            cls_targets1 = smooth(cls_targets, train_data._dataset.num_class))
+                        except AttributeError:
+                            cls_targets1 = smooth(cls_targets, train_data._dataset._data.num_class))
                     else:
                         cls_targets1 = cls_targets
                     rcnn_loss1 = rcnn_cls_loss(cls_pred, cls_targets1, cls_targets >= 0) * cls_targets.size / cls_targets.shape[0] / num_rcnn_pos

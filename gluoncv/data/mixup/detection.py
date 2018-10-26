@@ -26,6 +26,14 @@ class MixupDetection(Dataset):
         self._mixup = mixup
         self._mixup_args = args
 
+    @property
+    def classes(self):
+        return self._dataset.classes
+
+    @property
+    def num_class(self):
+        return len(self.classes)
+
     def set_mixup(self, mixup=None, *args):
         """Set mixup random sampler, use None to disable.
 
