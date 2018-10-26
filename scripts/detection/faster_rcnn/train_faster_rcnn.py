@@ -20,6 +20,7 @@ from gluoncv.data.transforms.presets.rcnn import FasterRCNNDefaultValTransform
 from gluoncv.utils.metrics.voc_detection import VOC07MApMetric
 from gluoncv.utils.metrics.coco_detection import COCODetectionMetric
 from gluoncv.utils.metrics.accuracy import Accuracy
+from gluoncv.utils import LRScheduler, LRCompose
 
 
 def parse_args():
@@ -43,10 +44,14 @@ def parse_args():
                         'You can specify it to 100 for example to start from 100 epoch.')
     parser.add_argument('--lr', type=str, default='',
                         help='Learning rate, default is 0.001 for voc single gpu training.')
+    parser.add_argument('--lr-mode', type=str, default='step',
+                        help='learning rate scheduler mode. options are step, poly and cosine.')
     parser.add_argument('--lr-decay', type=float, default=0.1,
                         help='decay rate of learning rate. default is 0.1.')
-    parser.add_argument('--lr-decay-epoch', type=str, default='',
-                        help='epoches at which learning rate decays. default is 14,20 for voc.')
+    parser.add_argument('--lr-decay-period', type=int, default=0,
+                        help='interval for periodic learning rate decays. default is 0 to disable.')
+    parser.add_argument('--lr-decay-epoch', type=str, default='160,180',
+                        help='epoches at which learning rate decays. default is 160,180.')
     parser.add_argument('--lr-warmup', type=str, default='',
                         help='warmup iterations to adjust learning rate, default is 0 for voc.')
     parser.add_argument('--momentum', type=float, default=0.9,
@@ -69,6 +74,10 @@ def parse_args():
     parser.add_argument('--mixup', action='store_true', help='Use mixup training.')
     parser.add_argument('--no-mixup-epochs', type=int, default=20,
                         help='Disable mixup training if enabled in the last N epochs.')
+    parser.add_argument('--num-samples', type=int, default=-1,
+                        help='Training images. Use -1 to automatically get the number.')
+    parser.add_argument('--no-data-aug', action='store_true')
+    parser.add_argument('--label-smoothing', action='store_true')
     args = parser.parse_args()
     if args.dataset == 'voc':
         args.epochs = int(args.epochs) if args.epochs else 20
@@ -88,6 +97,8 @@ def parse_args():
         else:
             args.lr *=  num_gpus
             args.lr_warmup /= num_gpus
+    if args.num_samples < 0:
+        args.num_samples = len(train_dataset)
     return args
 
 
@@ -265,23 +276,42 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
     """Training pipeline"""
     net.collect_params().setattr('grad_req', 'null')
     net.collect_train_params().setattr('grad_req', 'write')
+    # lr decay policy
+    lr_decay = float(args.lr_decay)
+    num_batches = args.num_samples // args.batch_size
+    lr_warmup = float(args.lr_warmup)  # avoid int division
+    lr_steps = sorted([num_batches * float(ls) - lr_warmup for ls in args.lr_decay_epoch.split(',') if ls.strip()])
+    logging.info('lr_steps:', lr_steps)
+    lr_scheduler = LRCompose([
+        LRScheduler('linear', base_lr=0, target_lr=args.lr,
+                    niters=lr_warmup),
+        LRScheduler(args.lr_mode, base_lr=args.lr, niters=num_batches*args.epochs,
+                    step=lr_steps,
+                    step_factor=lr_decay, power=2),
+    ])
     trainer = gluon.Trainer(
         net.collect_train_params(),  # fix batchnorm, fix first stage, etc...
         'sgd',
         {'learning_rate': args.lr,
          'wd': args.wd,
          'momentum': args.momentum,
+         'lr_scheduler': lr_scheduler,
          'clip_gradient': 5})
-
-    # lr decay policy
-    lr_decay = float(args.lr_decay)
-    lr_steps = sorted([float(ls) for ls in args.lr_decay_epoch.split(',') if ls.strip()])
-    lr_warmup = float(args.lr_warmup)  # avoid int division
 
     # TODO(zhreshold) losses?
     rpn_cls_loss = mx.gluon.loss.SigmoidBinaryCrossEntropyLoss(from_sigmoid=False)
     rpn_box_loss = mx.gluon.loss.HuberLoss(rho=1/9.)  # == smoothl1
-    rcnn_cls_loss = mx.gluon.loss.SoftmaxCrossEntropyLoss()
+    if args.label_smoothing:
+        rcnn_cls_loss = mx.gluon.loss.SoftmaxCrossEntropyLoss(sparse_label=False)
+        def smooth(label, classes, eta=0.1):
+            if isinstance(label, nd.NDArray):
+                label = [label]
+            smoothed = []
+            for l in label:
+                res = l.one_hot(classes, on_value = 1 - eta + eta/classes, off_value = eta/classes)
+                smoothed.append(res)
+    else:
+        rcnn_cls_loss = mx.gluon.loss.SoftmaxCrossEntropyLoss()
     rcnn_box_loss = mx.gluon.loss.HuberLoss()  # == smoothl1
     metrics = [mx.metric.Loss('RPN_Conf'),
                mx.metric.Loss('RPN_SmoothL1'),
@@ -319,25 +349,25 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
             if epoch >= args.epochs - args.no_mixup_epochs:
                 train_data._dataset.set_mixup(None)
                 mix_ratio = 1.0
-        while lr_steps and epoch >= lr_steps[0]:
-            new_lr = trainer.learning_rate * lr_decay
-            lr_steps.pop(0)
-            trainer.set_learning_rate(new_lr)
-            logger.info("[Epoch {}] Set learning rate to {}".format(epoch, new_lr))
+        # while lr_steps and epoch >= lr_steps[0]:
+        #     new_lr = trainer.learning_rate * lr_decay
+        #     lr_steps.pop(0)
+        #     trainer.set_learning_rate(new_lr)
+        #     logger.info("[Epoch {}] Set learning rate to {}".format(epoch, new_lr))
         for metric in metrics:
             metric.reset()
         tic = time.time()
         btic = time.time()
         net.hybridize(static_alloc=True)
-        base_lr = trainer.learning_rate
-        for i, batch in enumerate(train_data):
-            if epoch == 0 and i <= lr_warmup:
-                # adjust based on real percentage
-                new_lr = base_lr * get_lr_at_iter(i / lr_warmup)
-                if new_lr != trainer.learning_rate:
-                    if i % args.log_interval == 0:
-                        logger.info('[Epoch 0 Iteration {}] Set learning rate to {}'.format(i, new_lr))
-                    trainer.set_learning_rate(new_lr)
+        # base_lr = trainer.learning_rate
+        # for i, batch in enumerate(train_data):
+        #     if epoch == 0 and i <= lr_warmup:
+        #         # adjust based on real percentage
+        #         new_lr = base_lr * get_lr_at_iter(i / lr_warmup)
+        #         if new_lr != trainer.learning_rate:
+        #             if i % args.log_interval == 0:
+        #                 logger.info('[Epoch 0 Iteration {}] Set learning rate to {}'.format(i, new_lr))
+        #             trainer.set_learning_rate(new_lr)
             batch = split_and_load(batch, ctx_list=ctx)
             batch_size = len(batch[0])
             losses = []
@@ -359,7 +389,11 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
                     cls_targets, box_targets, box_masks = net.target_generator(roi, samples, matches, gt_label, gt_box)
                     # losses of rcnn
                     num_rcnn_pos = (cls_targets >= 0).sum()
-                    rcnn_loss1 = rcnn_cls_loss(cls_pred, cls_targets, cls_targets >= 0) * cls_targets.size / cls_targets.shape[0] / num_rcnn_pos
+                    if args.label_smoothing:
+                        cls_targets1 = smooth(cls_targets, len(train_data._dataset.CLASSES))
+                    else:
+                        cls_targets1 = cls_targets
+                    rcnn_loss1 = rcnn_cls_loss(cls_pred, cls_targets1, cls_targets >= 0) * cls_targets.size / cls_targets.shape[0] / num_rcnn_pos
                     rcnn_loss2 = rcnn_box_loss(box_pred, box_targets, box_masks) * box_pred.size / box_pred.shape[0] / num_rcnn_pos
                     rcnn_loss = rcnn_loss1 + rcnn_loss2
                     # overall losses
@@ -383,8 +417,8 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
             if args.log_interval and not (i + 1) % args.log_interval:
                 # msg = ','.join(['{}={:.3f}'.format(*metric.get()) for metric in metrics])
                 msg = ','.join(['{}={:.3f}'.format(*metric.get()) for metric in metrics + metrics2])
-                logger.info('[Epoch {}][Batch {}], Speed: {:.3f} samples/sec, {}'.format(
-                    epoch, i, args.log_interval * batch_size/(time.time()-btic), msg))
+                logger.info('[Epoch {}][Batch {}], Speed: {:.3f} samples/sec, {}, LR={}'.format(
+                    epoch, i, args.log_interval * batch_size/(time.time()-btic), msg, trainer.learning_rate))
                 btic = time.time()
 
         msg = ','.join(['{}={:.3f}'.format(*metric.get()) for metric in metrics])

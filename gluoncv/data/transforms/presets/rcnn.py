@@ -130,12 +130,13 @@ class FasterRCNNDefaultTrainTransform(object):
     def __init__(self, short=600, max_size=1000, net=None, mean=(0.485, 0.456, 0.406),
                  std=(0.229, 0.224, 0.225), box_norm=(1., 1., 1., 1.),
                  num_sample=256, pos_iou_thresh=0.7, neg_iou_thresh=0.3,
-                 pos_ratio=0.5, **kwargs):
+                 pos_ratio=0.5, no_aug=False, **kwargs):
         self._short = short
         self._max_size = max_size
         self._mean = mean
         self._std = std
         self._anchors = None
+        self._no_aug = no_aug
         if net is None:
             return
 
@@ -165,9 +166,10 @@ class FasterRCNNDefaultTrainTransform(object):
         bbox = tbbox.resize(label, (w, h), (img.shape[1], img.shape[0]))
 
         # random horizontal flip
-        h, w, _ = img.shape
-        img, flips = timage.random_flip(img, px=0.5)
-        bbox = tbbox.flip(bbox, (w, h), flip_x=flips[0])
+        if not self._no_aug:
+            h, w, _ = img.shape
+            img, flips = timage.random_flip(img, px=0.5)
+            bbox = tbbox.flip(bbox, (w, h), flip_x=flips[0])
 
         # to tensor
         img = mx.nd.image.to_tensor(img)
