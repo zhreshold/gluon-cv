@@ -303,7 +303,7 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
     rpn_box_loss = mx.gluon.loss.HuberLoss(rho=1/9.)  # == smoothl1
     if args.label_smoothing:
         rcnn_cls_loss = mx.gluon.loss.SoftmaxCrossEntropyLoss(sparse_label=False)
-        def smooth(label, classes, eta=0.1):
+        def smooth(label, classes, eta=0.01):
             res = label.one_hot(classes, on_value = 1 - eta + eta/classes, off_value = eta/classes)
             return res
     else:
