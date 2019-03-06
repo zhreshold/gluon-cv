@@ -18,9 +18,9 @@ class CachedFasterRCNNCOCODetection(COCODetection):
         for sz in self._sizes:
             assert len(sz) == 2
         trans_fn = [FasterRCNNDefaultTrainTransform(
-            short=min_s, max_size=max_s, flip_p=0, net=net, **kwargs) for min_s, max_s in sizes]
+            short=min_s, max_size=max_s, flip_p=0, net=net) for min_s, max_s in sizes]
         trans_fn_flip = [FasterRCNNDefaultTrainTransform(
-            short=min_s, max_size=max_s, flip_p=1, net=net, **kwargs) for min_s, max_s in sizes]
+            short=min_s, max_size=max_s, flip_p=1, net=net) for min_s, max_s in sizes]
         self._trans_fns = trans_fn + trans_fn_flip
         self._num_trans = len(self._trans_fns)
 
