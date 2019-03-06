@@ -8,7 +8,7 @@ from ..transforms.presets.rcnn import FasterRCNNDefaultTrainTransform
 
 
 class CachedFasterRCNNCOCODetection(COCODetection):
-    def __init__(self, cache_file, sizes=((600, 1000), (800, 1300)), **kwargs):
+    def __init__(self, cache_file, sizes=((600, 1000), (800, 1300)), net=None, **kwargs):
         assert kwargs.get('transform', None) is None
         super(CachedFasterRCNNCOCODetection, self).__init__(**kwargs)
         self._cache_file = os.path.abspath(os.path.expanduser(cache_file))
@@ -18,9 +18,9 @@ class CachedFasterRCNNCOCODetection(COCODetection):
         for sz in self._sizes:
             assert len(sz) == 2
         trans_fn = [FasterRCNNDefaultTrainTransform(
-            short=min_s, max_size=max_s, flip_p=0, **kwargs) for min_s, max_s in sizes]
+            short=min_s, max_size=max_s, flip_p=0, net=net, **kwargs) for min_s, max_s in sizes]
         trans_fn_flip = [FasterRCNNDefaultTrainTransform(
-            short=min_s, max_size=max_s, flip_p=1, **kwargs) for min_s, max_s in sizes]
+            short=min_s, max_size=max_s, flip_p=1, net=net, **kwargs) for min_s, max_s in sizes]
         self._trans_fns = trans_fn + trans_fn_flip
         self._num_trans = len(self._trans_fns)
 
@@ -59,7 +59,7 @@ class CachedFasterRCNNCOCODetection(COCODetection):
             img = rets[0]
             label = rets[1:]
             # save to cache
-            _, _, height, width = img.shape
+            _, height, width = img.shape
             flipped = trans_fn._flip_p > 0
             meta = {'height':height, 'width':width, 'flipped':flipped}
             self._shelve[key] = (label, meta)
