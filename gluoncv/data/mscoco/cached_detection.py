@@ -1,6 +1,7 @@
 """Contrib, cached detection dataset."""
 import os
 import shelve
+import numpy as np
 import mxnet as mx
 from .detection import COCODetection
 from ..transforms.presets.rcnn import FasterRCNNDefaultTrainTransform
