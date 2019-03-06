@@ -8,6 +8,7 @@ from ..transforms.presets.rcnn import FasterRCNNDefaultTrainTransform
 class CachedFasterRCNNCOCODetection(COCODetection):
     def __init__(self, cache_file, sizes=((600, 1000), (800, 1300)), **kwargs):
         assert kwargs.get('transform', None) is None
+        super(CachedFasterRCNNCOCODetection, self).__init__(**kwargs)
         self._cache_file = os.path.abspath(os.path.expanduser(cache_file))
         self._shelve = shelve.open(self._cache_file)
         self._sizes = sizes
