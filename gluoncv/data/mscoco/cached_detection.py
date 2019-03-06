@@ -53,7 +53,7 @@ class CachedFasterRCNNCOCODetection(COCODetection):
             img = mx.nd.image.normalize(img, mean=trans_fn._mean, std=trans_fn._std)
         else:
             # generate image and labels
-            label = self._labels[idx]
+            label = np.array(self._labels[idx])
             rets = trans_fn(img, label)
             img = rets[0]
             label = rets[1:]
