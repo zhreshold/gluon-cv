@@ -65,4 +65,4 @@ class CachedFasterRCNNCOCODetection(COCODetection):
             self._shelve[key] = (label, meta)
             # self._shelve.sync()
 
-        return [img] + label
+        return [img] + list(label)
