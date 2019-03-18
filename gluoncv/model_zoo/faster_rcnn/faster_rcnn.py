@@ -383,6 +383,8 @@ def faster_rcnn_resnet50_v1b_voc(pretrained=False, pretrained_base=True, **kwarg
     print(norm_layer, kwargs.get('norm_kwargs', {}), 'use_global_stats', use_global_stats)
     base_network = resnet50_v1b(pretrained=pretrained_base, dilated=False,
                                 use_global_stats=use_global_stats, **kwargs)
+    kwargs.pop('norm_layer')
+    kwargs.pop('norm_kwargs')
     features = nn.HybridSequential()
     top_features = nn.HybridSequential()
     for layer in ['conv1', 'bn1', 'relu', 'maxpool', 'layer1', 'layer2', 'layer3']:
