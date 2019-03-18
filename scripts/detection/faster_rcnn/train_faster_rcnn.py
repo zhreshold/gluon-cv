@@ -66,6 +66,7 @@ def parse_args():
                         help='Random seed to be fixed.')
     parser.add_argument('--verbose', dest='verbose', action='store_true',
                         help='Print helpful debugging info once set.')
+    parser.add_argument('--syncbn', action='store_true', help='Use Sync BN')
     parser.add_argument('--mixup', action='store_true', help='Use mixup training.')
     parser.add_argument('--no-mixup-epochs', type=int, default=20,
                         help='Disable mixup training if enabled in the last N epochs.')
@@ -413,20 +414,31 @@ if __name__ == '__main__':
     # network
     net_name = '_'.join(('faster_rcnn', args.network, args.dataset))
     args.save_prefix += net_name
-    net = get_model(net_name, pretrained_base=True)
+    if args.syncbn and len(ctx) > 1:
+        norm_layer = gluon.contrib.nn.SyncBatchNorm
+        norm_kwargs = {'num_devices': len(ctx)}
+        net = get_model(net_name, pretrained_base=True, norm_layer=norm_layer, norm_kwargs=norm_kwargs)
+        async_net = get_model(net_name, pretrained_base=True)
+    else:
+        norm_layer = gluon.nn.BatchNorm
+        norm_kwargs = {}
+        net = get_model(net_name, pretrained_base=True, norm_layer=norm_layer, norm_kwargs=norm_kwargs)
+        async_net = get_model(net_name, pretrained_base=True)
+
     if args.resume.strip():
         net.load_parameters(args.resume.strip())
+        async_net.load_parameters(args.resume.strip())
     else:
-        for param in net.collect_params().values():
-            if param._data is not None:
-                continue
-            param.initialize()
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            net.initialize()
+            async_net.initialize()
     net.collect_params().reset_ctx(ctx)
 
     # training data
     train_dataset, val_dataset, eval_metric = get_dataset(args.dataset, args)
     train_data, val_data = get_dataloader(
-        net, train_dataset, val_dataset, args.batch_size, args.num_workers)
+        async_net, train_dataset, val_dataset, args.batch_size, args.num_workers)
 
     # training
     train(net, train_data, val_data, eval_metric, ctx, args)
