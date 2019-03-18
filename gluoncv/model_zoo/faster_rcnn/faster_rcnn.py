@@ -378,8 +378,11 @@ def faster_rcnn_resnet50_v1b_voc(pretrained=False, pretrained_base=True, **kwarg
     from ...data import VOCDetection
     classes = VOCDetection.CLASSES
     pretrained_base = False if pretrained else pretrained_base
+    norm_layer = kwargs.get('norm_layer', nn.BatchNorm)
+    use_global_stats = norm_layer == nn.BatchNorm
+    print(norm_layer, kwargs.get('norm_kwargs', {}), 'use_global_stats', use_global_stats)
     base_network = resnet50_v1b(pretrained=pretrained_base, dilated=False,
-                                use_global_stats=True, **kwargs)
+                                use_global_stats=use_global_stats, **kwargs)
     features = nn.HybridSequential()
     top_features = nn.HybridSequential()
     for layer in ['conv1', 'bn1', 'relu', 'maxpool', 'layer1', 'layer2', 'layer3']:
