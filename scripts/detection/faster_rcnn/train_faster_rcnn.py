@@ -4,6 +4,7 @@ import os
 # disable autotune
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
 import logging
+import warnings
 import time
 import numpy as np
 import mxnet as mx
