@@ -103,3 +103,22 @@ class Objects365Detection(COCODetection):
         You can override if custom dataset don't follow the same pattern
         """
         return '.'
+
+    def _parse_image_path(self, entry):
+        """How to parse image dir and path from entry.
+
+        Parameters
+        ----------
+        entry : dict
+            COCO entry, e.g. including width, height, image path, etc..
+
+        Returns
+        -------
+        abs_path : str
+            Absolute path for corresponding image.
+
+        """
+        print(entry)
+        dirname, filename = entry['coco_url'].split('/')[-2:]
+        abs_path = os.path.join(self._root, dirname, filename)
+        return abs_path
