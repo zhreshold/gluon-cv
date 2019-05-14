@@ -118,7 +118,7 @@ class Objects365Detection(COCODetection):
             Absolute path for corresponding image.
 
         """
-        print(entry)
-        dirname, filename = entry['coco_url'].split('/')[-2:]
+        filename = entry['file_name']
+        dirname = filename.split('_')[1]
         abs_path = os.path.join(self._root, dirname, filename)
         return abs_path
