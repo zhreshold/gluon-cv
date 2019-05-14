@@ -20,6 +20,7 @@ __all__ = ['YOLOV3',
            'get_yolov3',
            'yolo3_darknet53_voc',
            'yolo3_darknet53_coco',
+           'yolo3_darknet53_objects365',
            'yolo3_darknet53_custom',
            'yolo3_mobilenet1_0_coco',
            'yolo3_mobilenet1_0_voc',
@@ -626,6 +627,39 @@ def yolo3_darknet53_coco(pretrained_base=True, pretrained=False,
     classes = COCODetection.CLASSES
     return get_yolov3(
         'darknet53', stages, [512, 256, 128], anchors, strides, classes, 'coco',
+        pretrained=pretrained, norm_layer=norm_layer, norm_kwargs=norm_kwargs, **kwargs)
+
+def yolo3_darknet53_objects365(pretrained_base=True, pretrained=False,
+                               norm_layer=BatchNorm, norm_kwargs=None, **kwargs):
+    """YOLO3 multi-scale with darknet53 base network on COCO dataset.
+    Parameters
+    ----------
+    pretrained_base : boolean
+        Whether fetch and load pretrained weights for base network.
+    pretrained : bool or str
+        Boolean value controls whether to load the default pretrained weights for model.
+        String value represents the hashtag for a certain version of pretrained weights.
+    norm_layer : object
+        Normalization layer used (default: :class:`mxnet.gluon.nn.BatchNorm`)
+        Can be :class:`mxnet.gluon.nn.BatchNorm` or :class:`mxnet.gluon.contrib.nn.SyncBatchNorm`.
+    norm_kwargs : dict
+        Additional `norm_layer` arguments, for example `num_devices=4`
+        for :class:`mxnet.gluon.contrib.nn.SyncBatchNorm`.
+    Returns
+    -------
+    mxnet.gluon.HybridBlock
+        Fully hybrid yolo3 network.
+    """
+    from ...data import Objects365Detection
+    pretrained_base = False if pretrained else pretrained_base
+    base_net = darknet53(
+        pretrained=pretrained_base, norm_layer=norm_layer, norm_kwargs=norm_kwargs, **kwargs)
+    stages = [base_net.features[:15], base_net.features[15:24], base_net.features[24:]]
+    anchors = [[10, 13, 16, 30, 33, 23], [30, 61, 62, 45, 59, 119], [116, 90, 156, 198, 373, 326]]
+    strides = [8, 16, 32]
+    classes = Objects365Detection.CLASSES
+    return get_yolov3(
+        'darknet53', stages, [512, 256, 128], anchors, strides, classes, 'objects365',
         pretrained=pretrained, norm_layer=norm_layer, norm_kwargs=norm_kwargs, **kwargs)
 
 def yolo3_darknet53_custom(classes, transfer=None, pretrained_base=True, pretrained=False,

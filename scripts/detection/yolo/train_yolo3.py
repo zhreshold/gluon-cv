@@ -104,6 +104,12 @@ def get_dataset(dataset, args):
         val_metric = COCODetectionMetric(
             val_dataset, args.save_prefix + '_eval', cleanup=True,
             data_shape=(args.data_shape, args.data_shape))
+    elif dataset.lower() == 'objects365':
+        train_dataset = gdata.Objects365Detection(splits='train', use_crowd=False)
+        val_dataset = gdata.Objects365Detection(splits='val', skip_empty=False)
+        val_metric = COCODetectionMetric(
+            val_dataset, args.save_prefix + '_eval', cleanup=True,
+            data_shape=(args.data_shape, args.data_shape))
     else:
         raise NotImplementedError('Dataset: {} not implemented.'.format(dataset))
     if args.num_samples < 0:

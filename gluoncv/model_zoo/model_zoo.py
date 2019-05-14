@@ -163,6 +163,7 @@ _models = {
     'darknet53': darknet53,
     'yolo3_darknet53_coco': yolo3_darknet53_coco,
     'yolo3_darknet53_voc': yolo3_darknet53_voc,
+    'yolo3_darknet53_objects365': yolo3_darknet53_objects365,
     'yolo3_darknet53_custom': yolo3_darknet53_custom,
     'yolo3_mobilenet1.0_coco': yolo3_mobilenet1_0_coco,
     'yolo3_mobilenet1.0_voc': yolo3_mobilenet1_0_voc,
