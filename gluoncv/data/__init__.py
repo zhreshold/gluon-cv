@@ -18,6 +18,7 @@ from .segbase import ms_batchify_fn
 from .recordio.detection import RecordFileDetection
 from .lst.detection import LstDetection
 from .mixup.detection import MixupDetection
+from .objects365.detection import Objects365Detection
 
 datasets = {
     'ade20k': ADE20KSegmentation,
