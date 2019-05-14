@@ -87,19 +87,19 @@ class Objects365Detection(COCODetection):
                'game board', 'french horn', 'ambulance', 'asparagus', 'hoverboard', 'pasta',
                'target', 'hotair balloon', 'chainsaw', 'lobster', 'iron', 'flashlight']
 
-        def __init__(self, root=os.path.join('~', '.mxnet', 'datasets', 'objects365'),
-                     splits=('val',), transform=None, min_object_area=0,
-                     skip_empty=True, use_crowd=True):
-            super(Objects365Detection, self).__init__(root=root, splits=splits, transform=transform,
-                                                      min_object_area=min_object_area,
-                                                      skip_empty=skip_empty, use_crowd=use_crowd)
+    def __init__(self, root=os.path.join('~', '.mxnet', 'datasets', 'objects365'),
+                 splits=('val',), transform=None, min_object_area=0,
+                 skip_empty=True, use_crowd=True):
+        super(Objects365Detection, self).__init__(root=root, splits=splits, transform=transform,
+                                                  min_object_area=min_object_area,
+                                                  skip_empty=skip_empty, use_crowd=use_crowd)
 
-        @property
-        def annotation_dir(self):
-            """
-            The subdir for annotations. Default is '.'(root folder of objects365 dataset)
-            For example, a coco format json file will be searched as
-            'root/xxx.json'
-            You can override if custom dataset don't follow the same pattern
-            """
-            return '.'
+    @property
+    def annotation_dir(self):
+        """
+        The subdir for annotations. Default is '.'(root folder of objects365 dataset)
+        For example, a coco format json file will be searched as
+        'root/xxx.json'
+        You can override if custom dataset don't follow the same pattern
+        """
+        return '.'
