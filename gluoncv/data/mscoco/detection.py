@@ -140,7 +140,8 @@ class COCODetection(VisionDataset):
             anno = os.path.join(self._root, self.annotation_dir, split) + '.json'
             _coco = COCO(anno)
             self._coco.append(_coco)
-            classes = [c['name'] for c in _coco.loadCats(_coco.getCatIds())]
+            all_cats = sorted(_coco.loadCats(_coco.getCatIds()), key=lambda x:x['id'])
+            classes = [c['name'] for c in all_cats]
             if not classes == self.classes:
                 raise ValueError("Incompatible category names with COCO: ")
             assert classes == self.classes
