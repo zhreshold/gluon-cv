@@ -22,6 +22,7 @@
 from __future__ import division
 
 import numpy as np
+import mxnet as mx
 from mxnet.gluon import nn
 from mxnet.gluon.nn import BatchNorm
 from mxnet.gluon.block import HybridBlock
@@ -297,6 +298,11 @@ def get_mobilenet_v3(model_name, multiplier=1., pretrained=False, ctx=cpu(),
         net.load_parameters(get_model_file('mobilenetv3_%s' % model_name,
                                            tag=pretrained,
                                            root=root), ctx=ctx)
+        for k, v in net.collect_params().items():
+            np_data = v.data().asnumpy()
+            if np.isnan(np_data).any():
+                new_data = mx.nd.array(np.nan_to_num(np_data, copy=False, nan=0.0))
+                v.set_data(new_data.astype(v.data().dtype))
         from ..data import ImageNet1kAttr
         attrib = ImageNet1kAttr()
         net.synset = attrib.synset
