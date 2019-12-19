@@ -19,6 +19,10 @@ __all__ = ['CenterNet', 'get_center_net',
            'center_net_resnet101_v1b_coco', 'center_net_resnet101_v1b_dcnv2_coco',
            'center_net_dla34_voc', 'center_net_dla34_dcnv2_voc',
            'center_net_dla34_coco', 'center_net_dla34_dcnv2_coco',
+           'center_net_mobilnetv3_large_voc', 'center_net_mobilnetv3_large_dcnv2_voc',
+           'center_net_mobilnetv3_large_coco', 'center_net_mobilnetv3_large_dcnv2_coco',
+           'center_net_mobilnetv3_small_voc', 'center_net_mobilnetv3_small_dcnv2_voc',
+           'center_net_mobilnetv3_small_coco', 'center_net_mobilnetv3_small_dcnv2_coco',
            ]
 
 class CenterNet(nn.HybridBlock):
@@ -617,7 +621,7 @@ def center_net_dla34_voc(pretrained=False, pretrained_base=True, **kwargs):
                           scale=4.0, topk=40, **kwargs)
 
 def center_net_dla34_dcnv2_voc(pretrained=False, pretrained_base=True, **kwargs):
-    """Center net with resnet101_v1b base network with deformable conv layers on voc dataset.
+    """Center net with dla34 base network with deformable conv layers on voc dataset.
 
     Parameters
     ----------
@@ -647,7 +651,7 @@ def center_net_dla34_dcnv2_voc(pretrained=False, pretrained_base=True, **kwargs)
                           scale=4.0, topk=40, **kwargs)
 
 def center_net_dla34_coco(pretrained=False, pretrained_base=True, **kwargs):
-    """Center net with resnet101_v1b base network on coco dataset.
+    """Center net with dla34 base network on coco dataset.
 
     Parameters
     ----------
@@ -677,7 +681,7 @@ def center_net_dla34_coco(pretrained=False, pretrained_base=True, **kwargs):
                           scale=4.0, topk=40, **kwargs)
 
 def center_net_dla34_dcnv2_coco(pretrained=False, pretrained_base=True, **kwargs):
-    """Center net with resnet101_v1b base network with deformable v2 conv layers on coco dataset.
+    """Center net with dla34 base network with deformable v2 conv layers on coco dataset.
 
     Parameters
     ----------
@@ -703,5 +707,245 @@ def center_net_dla34_dcnv2_coco(pretrained=False, pretrained_base=True, **kwargs
         ('reg', {'num_output': 2})
         ])
     return get_center_net('dla34', 'coco', base_network=base_network, heads=heads,
+                          head_conv_channel=64, pretrained=pretrained, classes=classes,
+                          scale=4.0, topk=40, **kwargs)
+
+def center_net_mobilenetv3_large_voc(pretrained=False, pretrained_base=True, **kwargs):
+    """Center net with mobilenetv3_large base network on voc dataset.
+
+    Parameters
+    ----------
+    classes : iterable of str
+        Names of custom foreground classes. `len(classes)` is the number of foreground classes.
+    pretrained_base : bool or str, optional, default is True
+        Load pretrained base network, the extra layers are randomized.
+
+    Returns
+    -------
+    HybridBlock
+        A CenterNet detection network.
+
+    """
+    from .deconv_mobilenet import mobilenetv3_large_deconv
+    from ...data import VOCDetection
+    classes = VOCDetection.CLASSES
+    pretrained_base = False if pretrained else pretrained_base
+    base_network = mobilenetv3_large_deconv(pretrained=pretrained_base, **kwargs)
+    heads = OrderedDict([
+        ('heatmap', {'num_output': len(classes), 'bias': -2.19}), # use bias = -log((1 - 0.1) / 0.1)
+        ('wh', {'num_output': 2}),
+        ('reg', {'num_output': 2})
+        ])
+    return get_center_net('mobilenetv3_large', 'voc', base_network=base_network, heads=heads,
+                          head_conv_channel=64, pretrained=pretrained, classes=classes,
+                          scale=4.0, topk=40, **kwargs)
+
+def center_net_mobilenetv3_large_dcnv2_voc(pretrained=False, pretrained_base=True, **kwargs):
+    """Center net with mobilenetv3_large base network with deformable conv layers on voc dataset.
+
+    Parameters
+    ----------
+    classes : iterable of str
+        Names of custom foreground classes. `len(classes)` is the number of foreground classes.
+    pretrained_base : bool or str, optional, default is True
+        Load pretrained base network, the extra layers are randomized.
+
+    Returns
+    -------
+    HybridBlock
+        A CenterNet detection network.
+
+    """
+    from .deconv_mobilenet import mobilenetv3_large_deconv_dcnv2
+    from ...data import VOCDetection
+    classes = VOCDetection.CLASSES
+    pretrained_base = False if pretrained else pretrained_base
+    base_network = mobilenetv3_large_deconv_dcnv2(pretrained=pretrained_base, **kwargs)
+    heads = OrderedDict([
+        ('heatmap', {'num_output': len(classes), 'bias': -2.19}), # use bias = -log((1 - 0.1) / 0.1)
+        ('wh', {'num_output': 2}),
+        ('reg', {'num_output': 2})
+        ])
+    return get_center_net('mobilenetv3_large', 'voc', base_network=base_network, heads=heads,
+                          head_conv_channel=64, pretrained=pretrained, classes=classes,
+                          scale=4.0, topk=40, **kwargs)
+
+def center_net_mobilenetv3_large_coco(pretrained=False, pretrained_base=True, **kwargs):
+    """Center net with mobilenetv3_large base network on coco dataset.
+
+    Parameters
+    ----------
+    classes : iterable of str
+        Names of custom foreground classes. `len(classes)` is the number of foreground classes.
+    pretrained_base : bool or str, optional, default is True
+        Load pretrained base network, the extra layers are randomized.
+
+    Returns
+    -------
+    HybridBlock
+        A CenterNet detection network.
+
+    """
+    from .deconv_dla import dla34_deconv
+    from ...data import COCODetection
+    classes = COCODetection.CLASSES
+    pretrained_base = False if pretrained else pretrained_base
+    base_network = mobilenetv3_large_deconv(pretrained=pretrained_base, **kwargs)
+    heads = OrderedDict([
+        ('heatmap', {'num_output': len(classes), 'bias': -2.19}), # use bias = -log((1 - 0.1) / 0.1)
+        ('wh', {'num_output': 2}),
+        ('reg', {'num_output': 2})
+        ])
+    return get_center_net('mobilenetv3_large', 'coco', base_network=base_network, heads=heads,
+                          head_conv_channel=64, pretrained=pretrained, classes=classes,
+                          scale=4.0, topk=40, **kwargs)
+
+def center_net_mobilenetv3_large_dcnv2_coco(pretrained=False, pretrained_base=True, **kwargs):
+    """Center net with mobilenetv3_large base network with deformable v2 conv layers on coco dataset.
+
+    Parameters
+    ----------
+    classes : iterable of str
+        Names of custom foreground classes. `len(classes)` is the number of foreground classes.
+    pretrained_base : bool or str, optional, default is True
+        Load pretrained base network, the extra layers are randomized.
+
+    Returns
+    -------
+    HybridBlock
+        A CenterNet detection network.
+
+    """
+    from .deconv_mobilenet import mobilenetv3_large_deconv_dcnv2
+    from ...data import COCODetection
+    classes = COCODetection.CLASSES
+    pretrained_base = False if pretrained else pretrained_base
+    base_network = mobilenetv3_large_deconv_dcnv2(pretrained=pretrained_base, **kwargs)
+    heads = OrderedDict([
+        ('heatmap', {'num_output': len(classes), 'bias': -2.19}), # use bias = -log((1 - 0.1) / 0.1)
+        ('wh', {'num_output': 2}),
+        ('reg', {'num_output': 2})
+        ])
+    return get_center_net('mobilenetv3_large', 'coco', base_network=base_network, heads=heads,
+                          head_conv_channel=64, pretrained=pretrained, classes=classes,
+                          scale=4.0, topk=40, **kwargs)
+
+def center_net_mobilenetv3_small_voc(pretrained=False, pretrained_base=True, **kwargs):
+    """Center net with mobilenetv3_small base network on voc dataset.
+
+    Parameters
+    ----------
+    classes : iterable of str
+        Names of custom foreground classes. `len(classes)` is the number of foreground classes.
+    pretrained_base : bool or str, optional, default is True
+        Load pretrained base network, the extra layers are randomized.
+
+    Returns
+    -------
+    HybridBlock
+        A CenterNet detection network.
+
+    """
+    from .deconv_mobilenet import mobilenetv3_small_deconv
+    from ...data import VOCDetection
+    classes = VOCDetection.CLASSES
+    pretrained_base = False if pretrained else pretrained_base
+    base_network = mobilenetv3_small_deconv(pretrained=pretrained_base, **kwargs)
+    heads = OrderedDict([
+        ('heatmap', {'num_output': len(classes), 'bias': -2.19}), # use bias = -log((1 - 0.1) / 0.1)
+        ('wh', {'num_output': 2}),
+        ('reg', {'num_output': 2})
+        ])
+    return get_center_net('mobilenetv3_small', 'voc', base_network=base_network, heads=heads,
+                          head_conv_channel=64, pretrained=pretrained, classes=classes,
+                          scale=4.0, topk=40, **kwargs)
+
+def center_net_mobilenetv3_small_dcnv2_voc(pretrained=False, pretrained_base=True, **kwargs):
+    """Center net with mobilenetv3_small base network with deformable conv layers on voc dataset.
+
+    Parameters
+    ----------
+    classes : iterable of str
+        Names of custom foreground classes. `len(classes)` is the number of foreground classes.
+    pretrained_base : bool or str, optional, default is True
+        Load pretrained base network, the extra layers are randomized.
+
+    Returns
+    -------
+    HybridBlock
+        A CenterNet detection network.
+
+    """
+    from .deconv_mobilenet import mobilenetv3_small_deconv_dcnv2
+    from ...data import VOCDetection
+    classes = VOCDetection.CLASSES
+    pretrained_base = False if pretrained else pretrained_base
+    base_network = mobilenetv3_small_deconv_dcnv2(pretrained=pretrained_base, **kwargs)
+    heads = OrderedDict([
+        ('heatmap', {'num_output': len(classes), 'bias': -2.19}), # use bias = -log((1 - 0.1) / 0.1)
+        ('wh', {'num_output': 2}),
+        ('reg', {'num_output': 2})
+        ])
+    return get_center_net('mobilenetv3_small', 'voc', base_network=base_network, heads=heads,
+                          head_conv_channel=64, pretrained=pretrained, classes=classes,
+                          scale=4.0, topk=40, **kwargs)
+
+def center_net_mobilenetv3_small_coco(pretrained=False, pretrained_base=True, **kwargs):
+    """Center net with mobilenetv3_small base network on coco dataset.
+
+    Parameters
+    ----------
+    classes : iterable of str
+        Names of custom foreground classes. `len(classes)` is the number of foreground classes.
+    pretrained_base : bool or str, optional, default is True
+        Load pretrained base network, the extra layers are randomized.
+
+    Returns
+    -------
+    HybridBlock
+        A CenterNet detection network.
+
+    """
+    from .deconv_dla import dla34_deconv
+    from ...data import COCODetection
+    classes = COCODetection.CLASSES
+    pretrained_base = False if pretrained else pretrained_base
+    base_network = mobilenetv3_small_deconv(pretrained=pretrained_base, **kwargs)
+    heads = OrderedDict([
+        ('heatmap', {'num_output': len(classes), 'bias': -2.19}), # use bias = -log((1 - 0.1) / 0.1)
+        ('wh', {'num_output': 2}),
+        ('reg', {'num_output': 2})
+        ])
+    return get_center_net('mobilenetv3_small', 'coco', base_network=base_network, heads=heads,
+                          head_conv_channel=64, pretrained=pretrained, classes=classes,
+                          scale=4.0, topk=40, **kwargs)
+
+def center_net_mobilenetv3_small_dcnv2_coco(pretrained=False, pretrained_base=True, **kwargs):
+    """Center net with mobilenetv3_small base network with deformable v2 conv layers on coco dataset.
+
+    Parameters
+    ----------
+    classes : iterable of str
+        Names of custom foreground classes. `len(classes)` is the number of foreground classes.
+    pretrained_base : bool or str, optional, default is True
+        Load pretrained base network, the extra layers are randomized.
+
+    Returns
+    -------
+    HybridBlock
+        A CenterNet detection network.
+
+    """
+    from .deconv_mobilenet import mobilenetv3_small_deconv_dcnv2
+    from ...data import COCODetection
+    classes = COCODetection.CLASSES
+    pretrained_base = False if pretrained else pretrained_base
+    base_network = mobilenetv3_small_deconv_dcnv2(pretrained=pretrained_base, **kwargs)
+    heads = OrderedDict([
+        ('heatmap', {'num_output': len(classes), 'bias': -2.19}), # use bias = -log((1 - 0.1) / 0.1)
+        ('wh', {'num_output': 2}),
+        ('reg', {'num_output': 2})
+        ])
+    return get_center_net('mobilenetv3_small', 'coco', base_network=base_network, heads=heads,
                           head_conv_channel=64, pretrained=pretrained, classes=classes,
                           scale=4.0, topk=40, **kwargs)
