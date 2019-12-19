@@ -19,10 +19,10 @@ __all__ = ['CenterNet', 'get_center_net',
            'center_net_resnet101_v1b_coco', 'center_net_resnet101_v1b_dcnv2_coco',
            'center_net_dla34_voc', 'center_net_dla34_dcnv2_voc',
            'center_net_dla34_coco', 'center_net_dla34_dcnv2_coco',
-           'center_net_mobilnetv3_large_voc', 'center_net_mobilnetv3_large_dcnv2_voc',
-           'center_net_mobilnetv3_large_coco', 'center_net_mobilnetv3_large_dcnv2_coco',
-           'center_net_mobilnetv3_small_voc', 'center_net_mobilnetv3_small_dcnv2_voc',
-           'center_net_mobilnetv3_small_coco', 'center_net_mobilnetv3_small_dcnv2_coco',
+           'center_net_mobilenetv3_large_voc', 'center_net_mobilenetv3_large_dcnv2_voc',
+           'center_net_mobilenetv3_large_coco', 'center_net_mobilenetv3_large_dcnv2_coco',
+           'center_net_mobilenetv3_small_voc', 'center_net_mobilenetv3_small_dcnv2_voc',
+           'center_net_mobilenetv3_small_coco', 'center_net_mobilenetv3_small_dcnv2_coco',
            ]
 
 class CenterNet(nn.HybridBlock):
