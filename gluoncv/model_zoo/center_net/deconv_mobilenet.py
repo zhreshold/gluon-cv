@@ -190,7 +190,7 @@ def mobilenetv3_large_deconv(**kwargs):
 
     """
     kwargs['use_dcnv2'] = False
-    return get_duc_mobilenet('mobilenetv3_large', **kwargs)
+    return get_deconv_mobilenet('mobilenetv3_large', **kwargs)
 
 def mobilenetv3_large_deconv_dcnv2(**kwargs):
     """Moiblenetv3 large model with deconv layers and deformable v2 conv layers.
@@ -202,7 +202,7 @@ def mobilenetv3_large_deconv_dcnv2(**kwargs):
 
     """
     kwargs['use_dcnv2'] = True
-    return get_duc_mobilenet('mobilenetv3_large', **kwargs)
+    return get_deconv_mobilenet('mobilenetv3_large', **kwargs)
 
 def mobilenetv3_small_deconv(**kwargs):
     """Moiblenetv3 small model with deconv layers.
@@ -214,7 +214,7 @@ def mobilenetv3_small_deconv(**kwargs):
 
     """
     kwargs['use_dcnv2'] = False
-    return get_duc_mobilenet('mobilenetv3_small', **kwargs)
+    return get_deconv_mobilenet('mobilenetv3_small', **kwargs)
 
 def mobilenetv3_small_deconv_dcnv2(**kwargs):
     """Moiblenetv3 small model with deconv layers and deformable v2 conv layers.
@@ -226,4 +226,4 @@ def mobilenetv3_small_deconv_dcnv2(**kwargs):
 
     """
     kwargs['use_dcnv2'] = True
-    return get_duc_mobilenet('mobilenetv3_small', **kwargs)
+    return get_deconv_mobilenet('mobilenetv3_small', **kwargs)
