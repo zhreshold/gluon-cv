@@ -82,7 +82,7 @@ class DeconvMobilenet(nn.HybridBlock):
         feat = net.features
         idx = [type(l) for l in feat].index(nn.conv_layers.GlobalAvgPool2D)
         with self.name_scope():
-            self.feature = feat[:idx]
+            self.base_network = feat[:idx]
             self.deconv = self._make_deconv_layer(deconv_filters, deconv_kernels)
 
     def _get_deconv_cfg(self, deconv_kernel):
@@ -149,7 +149,7 @@ class DeconvMobilenet(nn.HybridBlock):
 
     def hybrid_forward(self, F, x):
         """HybridForward"""
-        y = self.feature(x)
+        y = self.base_network(x)
         out = self.deconv(y)
         return out
 
