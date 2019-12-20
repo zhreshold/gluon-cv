@@ -906,7 +906,7 @@ def center_net_mobilenetv3_small_coco(pretrained=False, pretrained_base=True, **
         A CenterNet detection network.
 
     """
-    from .deconv_dla import dla34_deconv
+    from .deconv_mobilenet import mobilenetv3_small_deconv
     from ...data import COCODetection
     classes = COCODetection.CLASSES
     pretrained_base = False if pretrained else pretrained_base
