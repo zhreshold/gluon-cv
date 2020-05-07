@@ -21,7 +21,7 @@ __all__ = ['CenterNet', 'get_center_net',
            'center_net_dla34_coco', 'center_net_dla34_dcnv2_coco',
            'center_net_mobilenetv3_large_duc_voc', 'center_net_mobilenetv3_large_duc_coco',
            'center_net_mobilenetv3_small_duc_voc', 'center_net_mobilenetv3_small_duc_coco',
-           'center_net_resnet18_v1b_voc']
+           'center_net_resnet18_v1b_spconv_voc']
 
 class CenterNet(nn.HybridBlock):
     """Objects as Points. https://arxiv.org/abs/1904.07850v2
@@ -828,7 +828,7 @@ def center_net_mobilenetv3_small_duc_coco(pretrained=False, pretrained_base=True
                           head_conv_channel=64, pretrained=pretrained, classes=classes,
                           scale=4.0, topk=100, **kwargs)
 
-def center_net_resnet18_v1b_voc(pretrained=False, pretrained_base=True, **kwargs):
+def center_net_resnet18_v1b_spconv_voc(pretrained=False, pretrained_base=True, **kwargs):
     """Center net with resnet18_v1b base network on voc dataset.
 
     Parameters

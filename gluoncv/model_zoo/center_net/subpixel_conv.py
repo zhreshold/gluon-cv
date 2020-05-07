@@ -1,7 +1,13 @@
 """Subpixel convolution with learnable weights."""
+import warnings
+import mxnet as mx
 from mxnet import gluon
+from mxnet.base import numeric_types
+from mxnet import cpu
+from mxnet.gluon import nn
 from mxnet.gluon.nn.conv_layers import _Conv
 from mxnet.util import is_np_array
+from ..model_zoo import get_model
 
 
 class SubPixelConv2D(_Conv):
@@ -28,8 +34,8 @@ class SubPixelConv2D(_Conv):
         if is_np_array():
             F = F.npx
             FF = F
-        masks = [mask, F.flip(mask, axis=-1), F.flip(mask, axis=-2)]
-        masks.append(F.flip(masks[-1], axis=-1))
+        masks = [mask, F.flip(mask, axis=3), F.flip(mask, axis=2)]
+        masks.append(F.flip(masks[-1], axis=3))
         acts = []
         for m in masks:
             w = F.broadcast_mul(weight, m)
@@ -43,12 +49,12 @@ class SubPixelConv2D(_Conv):
             act1 = FF.np.concatenate(acts[0], acts[2], axis=-1)
             act2 = FF.np.concatenate(acts[1], acts[3], axis=-1)
             act = FF.np.concatenate(act1.expand_dims(-1), act2.expand_dims(-1), axis=-1)
-            act = FF.np.squeeze(act, axis=-1)
+            act = FF.np.reshape(act, (0, 0, 0, -1))
         else:
             act1 = F.concat(acts[0], acts[2], dim=-1)
             act2 = F.concat(acts[1], acts[3], dim=-1)
             act = F.concat(act1.expand_dims(-1), act2.expand_dims(-1), dim=-1)
-            act = act.squeeze(axis=-1)
+            act = act.reshape((0, 0, 0, -1))
         if self.act is not None:
             act = self.act(act)
         return act
@@ -75,7 +81,7 @@ class SPConvResnet(nn.HybridBlock):
                  spconv_filters=(256, 128, 64),
                  pretrained_base=True, norm_layer=nn.BatchNorm, norm_kwargs=None,
                  **kwargs):
-        super(spconvResnet, self).__init__(**kwargs)
+        super(SPConvResnet, self).__init__(**kwargs)
         assert 'resnet' in base_network
         net = get_model(base_network, pretrained=pretrained_base)
         self._norm_layer = norm_layer
