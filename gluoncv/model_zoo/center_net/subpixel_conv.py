@@ -33,7 +33,7 @@ class SubPixelConv2D(_Conv):
     def hybrid_forward(self, F, x, weight, mask, bias=None):
         if is_np_array():
             F = F.npx
-            FF = F
+            FF = F.np
         masks = [mask, F.flip(mask, axis=3), F.flip(mask, axis=2)]
         masks.append(F.flip(masks[-1], axis=3))
         acts = []
@@ -46,13 +46,10 @@ class SubPixelConv2D(_Conv):
             acts.append(act)
         # merge into H and W
         if is_np_array():
-            act1 = FF.np.concatenate(acts[0], acts[2], axis=-1)
-            act2 = FF.np.concatenate(acts[1], acts[3], axis=-1)
-            act = FF.np.concatenate(act1.expand_dims(-1), act2.expand_dims(-1), axis=-1)
-            act = FF.np.reshape(act, (0, 0, 0, -1))
+            raise NotImplementedError()
         else:
-            act1 = F.concat(acts[0], acts[2], dim=-1)
-            act2 = F.concat(acts[1], acts[3], dim=-1)
+            act1 = F.concat(acts[0], acts[2], dim=-1).reshape((0, 0, 0, 2, -1)).reshape((0, 0, -3, -1))
+            act2 = F.concat(acts[1], acts[3], dim=-1).reshape((0, 0, 0, 2, -1)).reshape((0, 0, -3, -1))
             act = F.concat(act1.expand_dims(-1), act2.expand_dims(-1), dim=-1)
             act = act.reshape((0, 0, 0, -1))
         if self.act is not None:
