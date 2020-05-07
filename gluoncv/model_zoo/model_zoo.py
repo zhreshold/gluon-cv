@@ -365,6 +365,7 @@ _models = {
     'hrnet_w18_small_v2_s' : hrnet_w18_small_v2_s,
     'hrnet_w48_s' : hrnet_w48_s,
     'siamrpn_alexnet_v2_otb15': siamrpn_alexnet_v2_otb15,
+    'center_net_resnet18_v1b_voc': center_net_resnet18_v1b_voc,
 }
 
 
