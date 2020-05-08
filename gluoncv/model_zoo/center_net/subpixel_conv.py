@@ -170,3 +170,25 @@ def resnet18_v1b_spconv(**kwargs):
 
     """
     return get_spconv_resnet('resnet18_v1b', **kwargs)
+
+def resnet50_v1b_spconv(**kwargs):
+    """Resnet18 v1b model with spconv layers.
+
+    Returns
+    -------
+    HybridBlock
+        A Resnet50 v1b model with spconv layers.
+
+    """
+    return get_spconv_resnet('resnet50_v1b', **kwargs)
+
+def resnet101_v1b_spconv(**kwargs):
+    """Resnet18 v1b model with spconv layers.
+
+    Returns
+    -------
+    HybridBlock
+        A Resnet101 v1b model with spconv layers.
+
+    """
+    return get_spconv_resnet('resnet101_v1b', **kwargs)
