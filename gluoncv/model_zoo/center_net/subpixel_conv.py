@@ -135,7 +135,7 @@ class SPConvResnet(nn.HybridBlock):
         return out
 
 
-class DUCResNet(nn.HybridBlock):
+class DUCResnet(nn.HybridBlock):
     """DUC ResNet.
 
     Parameters
