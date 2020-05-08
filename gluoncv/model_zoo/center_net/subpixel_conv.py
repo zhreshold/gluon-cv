@@ -8,6 +8,7 @@ from mxnet.gluon import nn
 from mxnet.gluon.nn.conv_layers import _Conv
 from mxnet.util import is_np_array
 from ..model_zoo import get_model
+from ...nn.block import DUC
 
 
 class SubPixelConv2D(_Conv):
@@ -27,7 +28,7 @@ class SubPixelConv2D(_Conv):
             in_channels, activation, use_bias, weight_initializer, bias_initializer,
             op_name, **kwargs)
         self.mask = self.params.get('mask', shape=(1, 1, kernel_size[0], kernel_size[1]),
-                                    init=weight_initializer,
+                                    init='ones',
                                     allow_deferred_init=False)
 
     def hybrid_forward(self, F, x, weight, mask, bias=None):
@@ -133,6 +134,77 @@ class SPConvResnet(nn.HybridBlock):
         out = self.spconv(y)
         return out
 
+
+class DUCResNet(nn.HybridBlock):
+    """DUC ResNet.
+
+    Parameters
+    ----------
+    base_network : str
+        Name of the base feature extraction network.
+    duc_filters : list of int
+        Number of filters for duc layers.
+    pretrained_base : bool
+        Whether load pretrained base network.
+    norm_layer : mxnet.gluon.nn.HybridBlock
+        Type of Norm layers, can be BatchNorm, SyncBatchNorm, GroupNorm, etc.
+    norm_kwargs : dict
+        Additional kwargs for `norm_layer`.
+
+    """
+    def __init__(self, base_network='resnet18_v1b',
+                 duc_filters=(256*4, 128*4, 64*4),
+                 pretrained_base=True, norm_layer=nn.BatchNorm, norm_kwargs=None,
+                 **kwargs):
+        super(DUCResnet, self).__init__(**kwargs)
+        assert 'resnet' in base_network
+        net = get_model(base_network, pretrained=pretrained_base)
+        self._norm_layer = norm_layer
+        self._norm_kwargs = norm_kwargs if norm_kwargs is not None else {}
+        if 'v1b' in base_network:
+            feat = nn.HybridSequential()
+            feat.add(*[net.conv1,
+                       net.bn1,
+                       net.relu,
+                       net.maxpool,
+                       net.layer1,
+                       net.layer2,
+                       net.layer3,
+                       net.layer4])
+            self.base_network = feat
+        else:
+            raise NotImplementedError('Only v1 variants of resnet are supported so far.')
+        with self.name_scope():
+            self.duc = self._make_duc_layer(duc_filters)
+
+    def _make_duc_layer(self, num_filters):
+        # pylint: disable=unused-variable
+        """Make spconv layers using the configs"""
+
+        layers = nn.HybridSequential('spconv_')
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.base_network.initialize()
+        in_planes = self.base_network(mx.nd.zeros((1, 3, 256, 256))).shape[1]
+        for planes in num_filters:
+            layers.add(nn.Conv2D(channels=planes,
+                                 kernel_size=3,
+                                 strides=1,
+                                 padding=1,
+                                 in_channels=in_planes))
+            layers.add(self._norm_layer(momentum=0.9, **self._norm_kwargs))
+            layers.add(nn.Activation('relu'))
+            layers.add(DUC(planes, upscale_factor=2))
+            in_planes = planes // 4
+        return layers
+
+    def hybrid_forward(self, F, x):
+        # pylint: disable=arguments-differ
+        """HybridForward"""
+        y = self.base_network(x)
+        out = self.duc(y)
+        return out
+
 def get_spconv_resnet(base_network, pretrained=False, ctx=cpu(), **kwargs):
     """Get resnet with spconv layers.
 
@@ -192,3 +264,63 @@ def resnet101_v1b_spconv(**kwargs):
 
     """
     return get_spconv_resnet('resnet101_v1b', **kwargs)
+
+def get_duc_resnet(base_network, pretrained=False, ctx=cpu(), **kwargs):
+    """Get resnet with spconv layers.
+
+    Parameters
+    ----------
+    base_network : str
+        Name of the base feature extraction network.
+    pretrained : bool
+        Whether load pretrained base network.
+    ctx : mxnet.Context
+        mx.cpu() or mx.gpu()
+    pretrained : type
+        Description of parameter `pretrained`.
+    Returns
+    -------
+    nn.HybridBlock
+        Network instance of resnet with spconv layers
+
+    """
+    net = DUCResnet(base_network=base_network, pretrained_base=pretrained,
+                    **kwargs)
+    with warnings.catch_warnings(record=True) as _:
+        warnings.simplefilter("always")
+        net.initialize()
+    net.collect_params().reset_ctx(ctx)
+    return net
+
+def resnet18_v1b_duc(**kwargs):
+    """Resnet18 v1b model with spconv layers.
+
+    Returns
+    -------
+    HybridBlock
+        A Resnet18 v1b model with spconv layers.
+
+    """
+    return get_duc_resnet('resnet18_v1b', **kwargs)
+
+def resnet50_v1b_duc(**kwargs):
+    """Resnet18 v1b model with spconv layers.
+
+    Returns
+    -------
+    HybridBlock
+        A Resnet50 v1b model with spconv layers.
+
+    """
+    return get_duc_resnet('resnet50_v1b', **kwargs)
+
+def resnet101_v1b_duc(**kwargs):
+    """Resnet18 v1b model with spconv layers.
+
+    Returns
+    -------
+    HybridBlock
+        A Resnet101 v1b model with spconv layers.
+
+    """
+    return get_duc_resnet('resnet101_v1b', **kwargs)
