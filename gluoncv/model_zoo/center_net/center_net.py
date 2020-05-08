@@ -24,6 +24,7 @@ __all__ = ['CenterNet', 'get_center_net',
            'center_net_resnet18_v1b_spconv_voc', 'center_net_resnet18_v1b_duc_voc',
            'center_net_resnet50_v1b_spconv_voc', 'center_net_resnet50_v1b_duc_voc',
            'center_net_resnet101_v1b_spconv_voc', 'center_net_resnet50_v1b_duc_voc',
+           'center_net_resnet50_v1b_spconv_coco', 'center_net_resnet50_v1b_duc_coco',
            ]
 
 class CenterNet(nn.HybridBlock):
@@ -1010,3 +1011,63 @@ def center_net_resnet101_v1b_duc_voc(pretrained=False, pretrained_base=True, **k
     return get_center_net('resnet101_v1b_duc', 'voc', base_network=base_network, heads=heads,
                           head_conv_channel=64, pretrained=pretrained, classes=classes,
                           scale=4.0, topk=40, **kwargs)
+
+def center_net_resnet50_v1b_spconv_coco(pretrained=False, pretrained_base=True, **kwargs):
+    """Center net with resnet50_v1b base network on coco dataset.
+
+    Parameters
+    ----------
+    classes : iterable of str
+        Names of custom foreground classes. `len(classes)` is the number of foreground classes.
+    pretrained_base : bool or str, optional, default is True
+        Load pretrained base network, the extra layers are randomized.
+
+    Returns
+    -------
+    HybridBlock
+        A CenterNet detection network.
+
+    """
+    from .subpixel_conv import resnet50_v1b_spconv
+    from ...data import COCODetection
+    classes = COCODetection.CLASSES
+    pretrained_base = False if pretrained else pretrained_base
+    base_network = resnet50_v1b_spconv(pretrained=pretrained_base, **kwargs)
+    heads = OrderedDict([
+        ('heatmap', {'num_output': len(classes), 'bias': -2.19}), # use bias = -log((1 - 0.1) / 0.1)
+        ('wh', {'num_output': 2}),
+        ('reg', {'num_output': 2})
+        ])
+    return get_center_net('resnet50_v1b_spconv', 'coco', base_network=base_network, heads=heads,
+                          head_conv_channel=64, pretrained=pretrained, classes=classes,
+                          scale=4.0, topk=100, **kwargs)
+
+def center_net_resnet50_v1b_duc_coco(pretrained=False, pretrained_base=True, **kwargs):
+    """Center net with resnet50_v1b base network on coco dataset.
+
+    Parameters
+    ----------
+    classes : iterable of str
+        Names of custom foreground classes. `len(classes)` is the number of foreground classes.
+    pretrained_base : bool or str, optional, default is True
+        Load pretrained base network, the extra layers are randomized.
+
+    Returns
+    -------
+    HybridBlock
+        A CenterNet detection network.
+
+    """
+    from .subpixel_conv import resnet50_v1b_duc
+    from ...data import COCODetection
+    classes = COCODetection.CLASSES
+    pretrained_base = False if pretrained else pretrained_base
+    base_network = resnet50_v1b_duc(pretrained=pretrained_base, **kwargs)
+    heads = OrderedDict([
+        ('heatmap', {'num_output': len(classes), 'bias': -2.19}), # use bias = -log((1 - 0.1) / 0.1)
+        ('wh', {'num_output': 2}),
+        ('reg', {'num_output': 2})
+        ])
+    return get_center_net('resnet50_v1b_duc', 'coco', base_network=base_network, heads=heads,
+                          head_conv_channel=64, pretrained=pretrained, classes=classes,
+                          scale=4.0, topk=100, **kwargs)

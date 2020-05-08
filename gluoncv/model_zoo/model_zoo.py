@@ -371,6 +371,8 @@ _models = {
     'center_net_resnet18_v1b_duc_voc': center_net_resnet18_v1b_duc_voc,
     'center_net_resnet50_v1b_duc_voc': center_net_resnet50_v1b_duc_voc,
     'center_net_resnet50_v1b_duc_voc': center_net_resnet50_v1b_duc_voc,
+    'center_net_resnet50_v1b_spconv_coco': center_net_resnet50_v1b_spconv_coco,
+    'center_net_resnet50_v1b_duc_coco': center_net_resnet50_v1b_duc_coco,
 }
 
 
