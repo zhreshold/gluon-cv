@@ -11,7 +11,7 @@ from ..model_zoo import get_model
 from ...nn.block import DUC
 
 
-class SubPixelConv2DV1(_Conv):
+class SubPixelConv2D(_Conv):
     def __init__(self, channels, kernel_size, strides=(1, 1), padding=(0, 0),
                  dilation=(1, 1), groups=1, layout='NCHW',
                  activation=None, use_bias=True, weight_initializer=None,
@@ -57,7 +57,7 @@ class SubPixelConv2DV1(_Conv):
             act = self.act(act)
         return act
 
-class SubPixelConv2D(_Conv):
+class SubPixelConv2DV1(_Conv):
     def __init__(self, channels, kernel_size, strides=(1, 1), padding=(0, 0),
                  dilation=(1, 1), groups=1, layout='NCHW',
                  activation=None, use_bias=True, weight_initializer=None,

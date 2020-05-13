@@ -22,7 +22,7 @@ from mxnet.gluon import nn
 from mxnet import initializer
 import gluoncv as gcv
 
-class SimplePoseResNet(HybridBlock):
+class SimplePoseResNetV1(HybridBlock):
 
     def __init__(self, base_name='resnet50_v1b',
                  pretrained_base=False, pretrained_ctx=cpu(),
@@ -105,6 +105,81 @@ class SimplePoseResNet(HybridBlock):
                 layer.add(nn.Activation('relu'))
                 self.inplanes = planes
 
+        return layer
+
+    def hybrid_forward(self, F, x):
+        x = self.resnet(x)
+
+        x = self.deconv_layers(x)
+        x = self.final_layer(x)
+
+        return x
+
+
+class SimplePoseResNet(HybridBlock):
+    def __init__(self, base_name='resnet50_v1b',
+                 pretrained_base=False, pretrained_ctx=cpu(),
+                 num_joints=17,
+                 num_deconv_layers=3,
+                 num_deconv_filters=(256, 256, 256),
+                 final_conv_kernel=1, **kwargs):
+        super(SimplePoseResNet, self).__init__(**kwargs)
+
+        from ..model_zoo import get_model
+        base_network = get_model(base_name, pretrained=pretrained_base, ctx=pretrained_ctx,
+                                 norm_layer=gcv.nn.BatchNormCudnnOff)
+
+        self.resnet = nn.HybridSequential()
+        if base_name.endswith('v1'):
+            for layer in ['features']:
+                self.resnet.add(getattr(base_network, layer))
+        else:
+            for layer in ['conv1', 'bn1', 'relu', 'maxpool',
+                          'layer1', 'layer2', 'layer3', 'layer4']:
+                self.resnet.add(getattr(base_network, layer))
+
+        # used for deconv layers
+        self.deconv_layers = self._make_deconv_layer(
+            num_deconv_layers,
+            num_deconv_filters,
+        )
+
+        self.final_layer = nn.Conv2D(
+            channels=num_joints,
+            kernel_size=final_conv_kernel,
+            strides=1,
+            padding=1 if final_conv_kernel == 3 else 0,
+            weight_initializer=initializer.Normal(0.001),
+            bias_initializer=initializer.Zero()
+        )
+
+    def _make_deconv_layer(self, num_layers, num_filters):
+        from ..center_net.subpixel_conv import SubPixelConv2D
+        assert num_layers == len(num_filters), \
+            'ERROR: num_deconv_layers is different from len(num_deconv_filters)'
+
+        layer = nn.HybridSequential(prefix='upsamples')
+        with layer.name_scope():
+            for i in range(num_layers):
+                planes = num_filters[i]
+                layer.add(nn.Conv2D(channels=planes,
+                                     kernel_size=1,
+                                     strides=1,
+                                     padding=0))
+                layer.add(nn.BatchNorm(momentum=0.9))
+                layer.add(nn.Activation('relu'))
+                layer.add(
+                    SubPixelConv2D(
+                        in_channels=planes,
+                        channels=planes,
+                        kernel_size=3,
+                        strides=1,
+                        padding=1,
+                        weight_initializer='ones',
+                        use_bias=False))
+                layer.add(nn.BatchNorm(momentum=0.9))
+                layer.add(nn.Activation('relu'))
+                self.inplanes = planes
         return layer
 
     def hybrid_forward(self, F, x):
