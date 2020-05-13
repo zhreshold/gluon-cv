@@ -11,7 +11,7 @@ from ..model_zoo import get_model
 from ...nn.block import DUC
 
 
-class SubPixelConv2D(_Conv):
+class SubPixelConv2DV3(_Conv):
     def __init__(self, channels, kernel_size, strides=(1, 1), padding=(0, 0),
                  dilation=(1, 1), groups=1, layout='NCHW',
                  activation=None, use_bias=True, weight_initializer=None,
@@ -138,6 +138,57 @@ class SubPixelConv2DV2(_Conv):
         weights.append(weights[-1].flip(axis=3))
         acts = []
         for w in weights:
+            if bias is None:
+                act = getattr(F, self._op_name)(x, w, name='fwd', **self._kwargs)
+            else:
+                act = getattr(F, self._op_name)(x, w, bias, name='fwd', **self._kwargs)
+            acts.append(act)
+        # merge into H and W
+        if is_np_array():
+            raise NotImplementedError()
+        else:
+            act1 = F.concat(acts[0], acts[2], dim=-1).reshape((0, 0, 0, 2, -1)).reshape((0, 0, -3, -1))
+            act2 = F.concat(acts[1], acts[3], dim=-1).reshape((0, 0, 0, 2, -1)).reshape((0, 0, -3, -1))
+            act = F.concat(act1.expand_dims(-1), act2.expand_dims(-1), dim=-1)
+            act = act.reshape((0, 0, 0, -1))
+        if self.act is not None:
+            act = self.act(act)
+        return act
+
+
+class SubPixelConv2D(_Conv):
+    def __init__(self, channels, kernel_size, strides=(1, 1), padding=(0, 0),
+                 dilation=(1, 1), groups=1, layout='NCHW',
+                 activation=None, use_bias=True, weight_initializer=None,
+                 bias_initializer='zeros', in_channels=0, **kwargs):
+        assert layout in ('NCHW', 'NHWC'), "Only supports 'NCHW' and 'NHWC' layout for now"
+        if isinstance(kernel_size, numeric_types):
+            kernel_size = (kernel_size,)*2
+        assert len(kernel_size) == 2, "kernel_size must be a number or a list of 2 ints"
+        op_name = kwargs.pop('op_name', 'Convolution')
+        if is_np_array():
+            op_name = 'convolution'
+        super(SubPixelConv2D, self).__init__(
+            channels, kernel_size, strides, padding, dilation, groups, layout,
+            in_channels, activation, use_bias, weight_initializer, bias_initializer,
+            op_name, **kwargs)
+        self.mask_conv = nn.HybridSequential(prefix='mask_conv_')
+        self.mask_conv.add(nn.Conv2D(9, kernel_size=3, padding=1, use_bias=False))
+        self.mask_conv.add(nn.BatchNorm())
+        self.mask_conv.add(nn.Activation('relu'))
+
+    def hybrid_forward(self, F, x, weight, bias=None):
+        if is_np_array():
+            F = F.npx
+            FF = F.np
+        mask = self.mask_conv(x)  # B * 9 x h x w
+        mask = mask.transpose((1, 0, 2, 3)).reshape((0, -1)).mean(axis=1).reshape((1, 1, 3, 3))
+
+        masks = [mask, F.flip(mask, axis=3), F.flip(mask, axis=2)]
+        masks.append(F.flip(masks[-1], axis=3))
+        acts = []
+        for m in masks:
+            w = F.broadcast_mul(weight, m)
             if bias is None:
                 act = getattr(F, self._op_name)(x, w, name='fwd', **self._kwargs)
             else:
