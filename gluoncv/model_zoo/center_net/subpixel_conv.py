@@ -11,7 +11,7 @@ from ..model_zoo import get_model
 from ...nn.block import DUC
 
 
-class SubPixelConv2DV3(_Conv):
+class SubPixelConv2D(_Conv):
     def __init__(self, channels, kernel_size, strides=(1, 1), padding=(0, 0),
                  dilation=(1, 1), groups=1, layout='NCHW',
                  activation=None, use_bias=True, weight_initializer=None,
@@ -39,7 +39,7 @@ class SubPixelConv2DV3(_Conv):
         masks.append(F.flip(masks[-1], axis=3))
         acts = []
         for m in masks:
-            w = F.broadcast_mul(weight, m)
+            w = F.broadcast_mul(weight, F.sigmoid(m))
             if bias is None:
                 act = getattr(F, self._op_name)(x, w, name='fwd', **self._kwargs)
             else:
@@ -156,7 +156,7 @@ class SubPixelConv2DV2(_Conv):
         return act
 
 
-class SubPixelConv2D(_Conv):
+class SubPixelConv2DV3(_Conv):
     def __init__(self, channels, kernel_size, strides=(1, 1), padding=(0, 0),
                  dilation=(1, 1), groups=1, layout='NCHW',
                  activation=None, use_bias=True, weight_initializer=None,
@@ -225,7 +225,7 @@ class SPConvResnet(nn.HybridBlock):
 
     """
     def __init__(self, base_network='resnet18_v1b',
-                 spconv_filters=(256, 128, 64),
+                 spconv_filters=(256*2, 128*2, 64*2),
                  pretrained_base=True, norm_layer=nn.BatchNorm, norm_kwargs=None,
                  **kwargs):
         super(SPConvResnet, self).__init__(**kwargs)
