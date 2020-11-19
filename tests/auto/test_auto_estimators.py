@@ -24,7 +24,7 @@ from autogluon.core.scheduler.resource import get_cpu_count, get_gpu_count
 IMAGE_CLASS_DATASET, _, IMAGE_CLASS_TEST = ImageClassification.Dataset.from_folders(
     'https://autogluon.s3.amazonaws.com/datasets/shopee-iet.zip')
 OBJECT_DETCTION_DATASET = ObjectDetection.Dataset.from_voc('https://autogluon.s3.amazonaws.com/datasets/tiny_motorbike.zip')
-OBJECT_DETECTION_TRAIN, OBJECT_DETECTION_VAL, OBJECT_DETECTION_TEST = OBJECT_DETCTION_DATASET(train_size=0.5, val_size=0.3, test_size=0.2)
+OBJECT_DETECTION_TRAIN, OBJECT_DETECTION_VAL, OBJECT_DETECTION_TEST = OBJECT_DETCTION_DATASET.random_split(train_size=0.5, val_size=0.3, test_size=0.2)
 
 def test_image_classification_estimator():
     from gluoncv.auto.estimators import ImageClassificationEstimator
