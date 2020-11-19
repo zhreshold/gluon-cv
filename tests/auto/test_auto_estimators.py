@@ -45,7 +45,7 @@ def test_center_net_estimator():
 
 def test_ssd_estimator():
     from gluoncv.auto.estimators import SSDEstimator
-    est = SSDEstimator({'train': {'epochs': 1, 'batch_size': 8}, , 'num_workers': 0, 'gpus': list(range(get_gpu_count()))})
+    est = SSDEstimator({'train': {'epochs': 1, 'batch_size': 8}, 'num_workers': 0, 'gpus': list(range(get_gpu_count()))})
     res = est.fit(OBJECT_DETECTION_TRAIN)
     assert res.get('valid_map', 0) > 0
     test_result = est.predict(OBJECT_DETECTION_TEST)
@@ -53,7 +53,7 @@ def test_ssd_estimator():
 
 def test_yolo3_estimator():
     from gluoncv.auto.estimators import YOLOv3Estimator
-    est = YOLOv3Estimator({'train': {'epochs': 1, 'batch_size': 8}, , 'num_workers': 0, 'gpus': list(range(get_gpu_count()))})
+    est = YOLOv3Estimator({'train': {'epochs': 1, 'batch_size': 8}, 'num_workers': 0, 'gpus': list(range(get_gpu_count()))})
     res = est.fit(OBJECT_DETECTION_TRAIN)
     assert res.get('valid_map', 0) > 0
     test_result = est.predict(OBJECT_DETECTION_TEST)
@@ -61,7 +61,7 @@ def test_yolo3_estimator():
 
 def test_frcnn_estimator():
     from gluoncv.auto.estimators import FasterRCNNEstimator
-    est = FasterRCNNEstimator({'train': {'epochs': 1}, , 'num_workers': 0, 'gpus': list(range(get_gpu_count()))})
+    est = FasterRCNNEstimator({'train': {'epochs': 1}, 'num_workers': 0, 'gpus': list(range(get_gpu_count()))})
     res = est.fit(OBJECT_DETECTION_TRAIN)
     assert res.get('valid_map', 0) > 0
     test_result = est.predict(OBJECT_DETECTION_TEST)
